@@ -41,10 +41,17 @@ export default function Dashboard() {
     setDownloading(true);
     
     try {
-      // Get license key from cookie or localStorage
-      const licenseKey = 'demo-license'; // TODO: Get from auth
+      // Get license key from authenticated session
+      const response = await fetch('/api/auth/session');
+      const session = await response.json();
       
-      const url = `/api/vpn/config?license=${licenseKey}&server=${selectedServer}&protocol=${protocol}&platform=${platform}`;
+      if (!session.user?.licenseKey) {
+        alert('Session expired. Please login again.');
+        window.location.href = '/';
+        return;
+      }
+      
+      const url = `/api/vpn/config?license=${session.user.licenseKey}&server=${selectedServer}&protocol=${protocol}&platform=${platform}`;
       
       // Trigger download
       window.location.href = url;
@@ -52,6 +59,7 @@ export default function Dashboard() {
       setTimeout(() => setDownloading(false), 2000);
     } catch (error) {
       console.error('Download failed:', error);
+      alert('Failed to download configuration. Please try again.');
       setDownloading(false);
     }
   };

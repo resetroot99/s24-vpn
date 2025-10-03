@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { authenticateUser } from '@/lib/users-supabase';
+
+// Simplified registration - no VPN API, no Supabase
+// Just create a session and let user configure VPN manually
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { email, password } = body;
 
-    // Validate input
     if (!email || !password) {
       return NextResponse.json(
         { error: 'Email and password are required' },
@@ -14,41 +15,47 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Authenticate user
-    const user = await authenticateUser(email, password);
-
-    if (!user) {
+    if (password.length < 8) {
       return NextResponse.json(
-        { error: 'Invalid email or password' },
-        { status: 401 }
+        { error: 'Password must be at least 8 characters' },
+        { status: 400 }
       );
     }
 
-    // Create session (simplified - use NextAuth or similar in production)
+    // Generate a simple user ID
+    const userId = `user-${Date.now()}`;
+    
+    // Create response with session cookie
     const response = NextResponse.json({
       success: true,
       user: {
-        id: user.id,
-        email: user.email,
-        licenseKey: user.licenseKey,
-        status: user.status,
+        id: userId,
+        email: email,
       },
     });
 
     // Set session cookie
-    response.cookies.set('user_id', user.id, {
+    response.cookies.set('user_id', userId, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       maxAge: 60 * 60 * 24 * 7, // 7 days
     });
 
+    response.cookies.set('user_email', email, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24 * 7,
+    });
+
     return response;
   } catch (error) {
-    console.error('[Login] Error:', error);
+    console.error('[Simple Register] Error:', error);
     return NextResponse.json(
-      { error: 'Login failed' },
+      { error: 'Registration failed' },
       { status: 500 }
     );
   }
 }
+

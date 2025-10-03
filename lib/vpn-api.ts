@@ -3,7 +3,7 @@
  * Handles all interactions with the VPN provider API
  */
 
-const API_BASE = process.env.VPN_RESELLERS_API_BASE || 'https://api.vpnresellers.com/v3_2';
+const API_BASE = process.env.VPN_RESELLERS_API_BASE || 'https://api.vpnresellers.com/v3';
 const API_TOKEN = process.env.VPN_RESELLERS_API_TOKEN;
 
 if (!API_TOKEN) {

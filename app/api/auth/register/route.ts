@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createUser, generateSecurePassword } from '@/lib/users';
+import { createUser, generateSecurePassword, updateUserVpnCredentials } from '@/lib/users-supabase';
 import { createAccount } from '@/lib/vpn-api';
 
 export async function POST(request: NextRequest) {
@@ -33,13 +33,15 @@ export async function POST(request: NextRequest) {
     try {
       const vpnAccount = await createAccount(user.licenseKey, vpnPassword);
       
-      // Update user with VPN credentials
-      user.vpnAccountId = vpnAccount.id;
-      user.vpnUsername = vpnAccount.username;
-      user.vpnPassword = vpnPassword;
-      user.wgPrivateKey = vpnAccount.wg_private_key;
-      user.wgPublicKey = vpnAccount.wg_public_key;
-      user.wgIpAddress = vpnAccount.wg_ip;
+      // Update user with VPN credentials in database
+      await updateUserVpnCredentials(user.id, {
+        vpnAccountId: vpnAccount.id,
+        vpnUsername: vpnAccount.username,
+        vpnPassword: vpnPassword,
+        wgPrivateKey: vpnAccount.wg_private_key,
+        wgPublicKey: vpnAccount.wg_public_key,
+        wgIpAddress: vpnAccount.wg_ip,
+      });
       
       console.log('[Register] ✅ VPN account created:', vpnAccount.id);
     } catch (vpnError) {

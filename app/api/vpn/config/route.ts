@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getUserByLicense } from '@/lib/users';
+import { getUserByLicense } from '@/lib/users-supabase';
 import { getWireGuardConfig, getOpenVPNConfig, listServers } from '@/lib/vpn-api';
 
 export async function GET(request: NextRequest) {
