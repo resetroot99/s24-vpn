@@ -1,0 +1,45 @@
+#!/bin/sh
+###############################################################################
+# Strat24 Startup Script
+# Runs on boot to initialize VPN and custom dashboard
+###############################################################################
+
+logger -t strat24 "=== Strat24 Secure Access Point Initializing ==="
+
+# Wait for network
+sleep 15
+
+# Determine which server to use (default: Netherlands)
+CURRENT_SERVER="nl"
+if [ -f /tmp/strat24-current-server ]; then
+    CURRENT_SERVER=$(cat /tmp/strat24-current-server)
+fi
+
+logger -t strat24 "Starting WireGuard VPN (Server: $CURRENT_SERVER)..."
+
+# Start WireGuard
+if wg-quick up wg-$CURRENT_SERVER 2>&1 | logger -t wireguard; then
+    logger -t strat24 "✓ VPN connected successfully"
+else
+    logger -t strat24 "✗ VPN connection failed, retrying..."
+    sleep 5
+    wg-quick up wg-$CURRENT_SERVER 2>&1 | logger -t wireguard
+fi
+
+# Ensure CGI scripts are executable
+chmod +x /www/cgi-bin/* 2>/dev/null
+
+# Start custom monitoring
+( while true; do
+    if ! ip link show wg-$CURRENT_SERVER 2>/dev/null | grep -q "state UP"; then
+        logger -t strat24 "VPN connection lost, reconnecting..."
+        wg-quick up wg-$CURRENT_SERVER 2>&1 | logger -t wireguard
+    fi
+    sleep 60
+done ) &
+
+logger -t strat24 "=== Strat24 Secure Access Point Ready ==="
+logger -t strat24 "Dashboard: http://192.168.8.1"
+
+exit 0
+

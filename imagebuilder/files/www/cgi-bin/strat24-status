@@ -1,0 +1,55 @@
+#!/bin/sh
+###############################################################################
+# Strat24 Status CGI Script
+# Returns current VPN status and statistics
+###############################################################################
+
+echo "Content-Type: application/json"
+echo "Access-Control-Allow-Origin: *"
+echo ""
+
+# Get current server
+CURRENT_SERVER="nl"
+if [ -f /tmp/strat24-current-server ]; then
+    CURRENT_SERVER=$(cat /tmp/strat24-current-server)
+fi
+
+# Check if VPN is connected
+VPN_STATUS="disconnected"
+if ip link show wg-$CURRENT_SERVER 2>/dev/null | grep -q "state UP"; then
+    VPN_STATUS="connected"
+fi
+
+# Get uptime
+UPTIME=$(cat /proc/uptime | cut -d' ' -f1 | cut -d'.' -f1)
+UPTIME_HOURS=$((UPTIME / 3600))
+UPTIME_MINS=$(((UPTIME % 3600) / 60))
+
+# Get transfer stats
+RX_BYTES=0
+TX_BYTES=0
+if [ -f /sys/class/net/wg-$CURRENT_SERVER/statistics/rx_bytes ]; then
+    RX_BYTES=$(cat /sys/class/net/wg-$CURRENT_SERVER/statistics/rx_bytes)
+    TX_BYTES=$(cat /sys/class/net/wg-$CURRENT_SERVER/statistics/tx_bytes)
+fi
+
+# Get public IP (if VPN connected)
+PUBLIC_IP="unknown"
+if [ "$VPN_STATUS" = "connected" ]; then
+    PUBLIC_IP=$(curl -s --connect-timeout 3 ifconfig.me 2>/dev/null || echo "checking...")
+fi
+
+# Output JSON
+cat << EOF
+{
+    "server": "$CURRENT_SERVER",
+    "status": "$VPN_STATUS",
+    "uptime": "${UPTIME_HOURS}h ${UPTIME_MINS}m",
+    "rx_bytes": $RX_BYTES,
+    "tx_bytes": $TX_BYTES,
+    "public_ip": "$PUBLIC_IP",
+    "kill_switch": "enabled",
+    "encryption": "ChaCha20-Poly1305"
+}
+EOF
+

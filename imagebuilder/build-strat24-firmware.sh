@@ -65,7 +65,8 @@ echo -e "${BLUE}[→] Preparing firmware files...${NC}"
 
 mkdir -p files/etc/config
 mkdir -p files/etc/wireguard
-mkdir -p files/www
+mkdir -p files/www/strat24
+mkdir -p files/www/cgi-bin
 mkdir -p files/etc/init.d
 
 # Copy VPN configs
@@ -269,8 +270,24 @@ EOF
 
 chmod +x files/etc/rc.local
 
-# Create simple web portal
+# Create redirect from root to strat24 dashboard
 cat > files/www/index.html << 'EOF'
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="refresh" content="0;url=/strat24/">
+</head>
+<body>
+    <p>Redirecting to Strat24 Dashboard...</p>
+</body>
+</html>
+EOF
+
+# Note: Full Strat24 dashboard is in files/www/strat24/index.html
+# Note: CGI scripts are in files/www/cgi-bin/
+
+# Create simple fallback portal  
+cat > files/www/strat24/fallback.html << 'EOF'
 <!DOCTYPE html>
 <html>
 <head>

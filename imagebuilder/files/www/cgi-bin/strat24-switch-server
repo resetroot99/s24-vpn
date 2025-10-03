@@ -1,0 +1,53 @@
+#!/bin/sh
+###############################################################################
+# Strat24 Server Switching CGI Script
+# Switches between VPN servers dynamically
+###############################################################################
+
+echo "Content-Type: application/json"
+echo "Access-Control-Allow-Origin: *"
+echo ""
+
+# Parse query string
+SERVER=$(echo "$QUERY_STRING" | sed -n 's/^.*server=\([^&]*\).*$/\1/p')
+
+if [ -z "$SERVER" ]; then
+    echo '{"success": false, "error": "No server specified"}'
+    exit 1
+fi
+
+# Validate server
+case "$SERVER" in
+    nl|ca|us|th)
+        ;;
+    *)
+        echo '{"success": false, "error": "Invalid server"}'
+        exit 1
+        ;;
+esac
+
+# Log
+logger -t strat24 "Switching to server: $SERVER"
+
+# Stop current WireGuard connection
+wg-quick down wg-nl 2>/dev/null || true
+wg-quick down wg-ca 2>/dev/null || true
+wg-quick down wg-us 2>/dev/null || true
+wg-quick down wg-th 2>/dev/null || true
+
+# Start new connection
+if wg-quick up wg-$SERVER 2>&1 | logger -t wireguard; then
+    # Save preference
+    echo "$SERVER" > /tmp/strat24-current-server
+    
+    # Restart firewall to ensure routes
+    /etc/init.d/firewall restart >/dev/null 2>&1
+    
+    logger -t strat24 "Successfully switched to $SERVER"
+    echo "{\"success\": true, \"server\": \"$SERVER\"}"
+else
+    logger -t strat24 "Failed to switch to $SERVER"
+    echo '{"success": false, "error": "Failed to start VPN connection"}'
+    exit 1
+fi
+
