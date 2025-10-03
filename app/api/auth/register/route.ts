@@ -49,7 +49,8 @@ export async function POST(request: NextRequest) {
       // Continue anyway - user can retry later
     }
 
-    return NextResponse.json({
+    // Create response with session cookie (same as login)
+    const response = NextResponse.json({
       success: true,
       user: {
         id: user.id,
@@ -58,6 +59,16 @@ export async function POST(request: NextRequest) {
         status: user.status,
       },
     });
+
+    // Set session cookie
+    response.cookies.set('user_id', user.id, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24 * 7, // 7 days
+    });
+
+    return response;
   } catch (error) {
     console.error('[Register] Error:', error);
     
