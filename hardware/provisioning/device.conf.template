@@ -1,0 +1,55 @@
+# Strat24 Secure Access Point - Device Configuration
+# Company: Strat24 | Website: https://strat24.com
+# Support: support@strat24.com
+#
+# INSTRUCTIONS:
+# 1. Replace LICENSE_KEY with the actual key from Strat24 VPN platform
+# 2. Set a strong, unique WIFI_PASSWORD for this specific device
+# 3. Optionally customize WIFI_SSID (default: Strat24-Secure)
+# 4. Upload this file to /root/device.conf on the router
+# 5. Run the provisioning script: /root/provision.sh
+#
+# SECURITY NOTES:
+# - Each device should have a UNIQUE Wi-Fi password
+# - Use minimum 12 characters with mixed case, numbers, and symbols
+# - Document the password in your device inventory system
+# - Never reuse passwords across multiple devices
+
+# LICENSE KEY (REQUIRED)
+# Obtain from: https://vpn.strat24.com (or your Strat24 VPN platform)
+# Format: S24-XXXXXXXXXX-XXXX
+LICENSE_KEY="REPLACE_WITH_ACTUAL_LICENSE_KEY"
+
+# WI-FI NETWORK NAME (OPTIONAL)
+# Default: Strat24-Secure
+# You can customize this per client or location if needed
+WIFI_SSID="Strat24-Secure"
+
+# WI-FI PASSWORD (REQUIRED)
+# IMPORTANT: Generate a unique, strong password for each device
+# Requirements:
+#   - Minimum 12 characters
+#   - Mix of uppercase, lowercase, numbers, and symbols
+#   - Unique per device (never reuse)
+# Example: Str@t24!Secure#2025$Device01
+WIFI_PASSWORD="REPLACE_WITH_STRONG_UNIQUE_PASSWORD"
+
+# CUSTOM API ENDPOINT (OPTIONAL)
+# Only uncomment and modify if using a custom Strat24 VPN platform URL
+# Default: https://vpn.strat24.com/api/vpn/config
+# API_ENDPOINT="https://custom-vpn.strat24.com/api/vpn/config"
+
+###############################################################################
+# DEVICE TRACKING INFORMATION (OPTIONAL - For Internal Use)
+# These variables are not used by the provisioning script but can help
+# with device inventory management. Document these in your tracking system.
+###############################################################################
+
+# CLIENT_NAME="Example NGO"
+# CLIENT_EMAIL="contact@example-ngo.org"
+# DEPLOYMENT_LOCATION="Field Office - Region A"
+# DEVICE_SERIAL="GL-SFT1200-XXXXX"
+# PROVISIONED_BY="John Doe"
+# PROVISIONED_DATE="2025-10-03"
+# VPN_SERVER_LOCATION="US East"
+# NOTES="Deployed to humanitarian mission in high-risk area"
