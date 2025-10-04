@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STRAT24 SECURE ACCESS</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', 'Consolas', monospace;
+            background: #1a1410;
+            min-height: 100vh;
+            color: #cc6633;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        header {
+            background: rgba(26, 20, 16, 0.95);
+            border: 1px solid #cc6633;
+            padding: 25px 30px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: 4px;
+            color: #cc6633;
+        }
+
+        .logo::before {
+            content: '> ';
+            color: #ff8844;
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(204, 102, 51, 0.1);
+            padding: 10px 20px;
+            border: 1px solid #cc6633;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            background: #cc6633;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        .main-card {
+            background: rgba(26, 20, 16, 0.95);
+            border: 1px solid #cc6633;
+            padding: 35px;
+            margin-bottom: 25px;
+        }
+
+        .connection-status {
+            text-align: center;
+            margin-bottom: 35px;
+            padding-bottom: 25px;
+            border-bottom: 1px solid rgba(204, 102, 51, 0.2);
+        }
+
+        .connection-status h1 {
+            font-size: 24px;
+            margin-bottom: 15px;
+            color: #ff8844;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        .current-server {
+            font-size: 36px;
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            color: #cc6633;
+            font-weight: 700;
+        }
+
+        .current-server::before {
+            content: '[';
+            color: #ff8844;
+        }
+
+        .current-server::after {
+            content: ']';
+            color: #ff8844;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 14px;
+            letter-spacing: 2px;
+        }
+
+        h2 {
+            margin-bottom: 25px;
+            text-align: center;
+            color: #ff8844;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            font-size: 18px;
+        }
+
+        .server-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 35px;
+        }
+
+        .server-card {
+            background: rgba(20, 15, 12, 0.8);
+            border: 1px solid #cc6633;
+            padding: 25px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .server-card:hover {
+            background: rgba(204, 102, 51, 0.05);
+        }
+
+        .server-card.active {
+            border-color: #ff8844;
+            background: rgba(204, 102, 51, 0.1);
+        }
+
+        .server-code {
+            font-size: 48px;
+            margin-bottom: 15px;
+            font-weight: 700;
+            color: #cc6633;
+        }
+
+        .server-name {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #ff8844;
+            letter-spacing: 2px;
+        }
+
+        .server-location {
+            color: #666;
+            font-size: 12px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .server-status {
+            margin-top: 15px;
+            padding: 6px 14px;
+            background: rgba(204, 102, 51, 0.1);
+            border: 1px solid #cc6633;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        .feature-card {
+            background: rgba(20, 15, 12, 0.8);
+            border: 1px solid #cc6633;
+            padding: 20px;
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+        }
+
+        .feature-icon {
+            font-size: 32px;
+            color: #ff8844;
+            min-width: 40px;
+        }
+
+        .feature-content h3 {
+            font-size: 16px;
+            margin-bottom: 8px;
+            color: #ff8844;
+            letter-spacing: 1px;
+        }
+
+        .feature-content p {
+            color: #666;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .admin-link {
+            display: inline-block;
+            background: rgba(20, 15, 12, 0.8);
+            padding: 15px 30px;
+            border: 1px solid #cc6633;
+            text-decoration: none;
+            color: #cc6633;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .admin-link:hover {
+            background: rgba(204, 102, 51, 0.1);
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: #666;
+            border-top: 1px solid rgba(204, 102, 51, 0.2);
+            margin-top: 30px;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(204, 102, 51, 0.3);
+            border-top-color: #cc6633;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">STRAT24</div>
+            <div class="status">
+                <div class="status-dot"></div>
+                <span id="status-text">ENCRYPTED</span>
+            </div>
+        </header>
+
+        <div class="main-card">
+            <div class="connection-status">
+                <h1>CONNECTION SECURED</h1>
+                <div class="current-server">
+                    <span id="current-location">NETHERLANDS</span>
+                </div>
+                <p class="subtitle">WIREGUARD ENCRYPTION ACTIVE</p>
+            </div>
+
+            <h2>SELECT VPN NODE</h2>
+            
+            <div class="server-grid">
+                <div class="server-card active" onclick="switchServer('nl', 'NETHERLANDS')" id="server-nl">
+                    <div class="server-code">NL</div>
+                    <div class="server-name">NETHERLANDS</div>
+                    <div class="server-location">AMSTERDAM</div>
+                    <div class="server-status">CONNECTED</div>
+                </div>
+
+                <div class="server-card" onclick="switchServer('ca', 'CANADA')" id="server-ca">
+                    <div class="server-code">CA</div>
+                    <div class="server-name">CANADA</div>
+                    <div class="server-location">TORONTO</div>
+                    <div class="server-status">AVAILABLE</div>
+                </div>
+
+                <div class="server-card" onclick="switchServer('us', 'UNITED STATES')" id="server-us">
+                    <div class="server-code">US</div>
+                    <div class="server-name">UNITED STATES</div>
+                    <div class="server-location">NEW YORK</div>
+                    <div class="server-status">AVAILABLE</div>
+                </div>
+
+                <div class="server-card" onclick="switchServer('th', 'THAILAND')" id="server-th">
+                    <div class="server-code">TH</div>
+                    <div class="server-name">THAILAND</div>
+                    <div class="server-location">BANGKOK</div>
+                    <div class="server-status">AVAILABLE</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-card">
+            <h2>SECURITY FEATURES</h2>
+            <div class="features">
+                <div class="feature-card">
+                    <div class="feature-icon">[+]</div>
+                    <div class="feature-content">
+                        <h3>MILITARY-GRADE ENCRYPTION</h3>
+                        <p>WireGuard protocol with ChaCha20-Poly1305 cipher suite</p>
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">[!]</div>
+                    <div class="feature-content">
+                        <h3>AUTOMATIC KILL SWITCH</h3>
+                        <p>Network lockdown on VPN disconnect - zero data leakage</p>
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">[~]</div>
+                    <div class="feature-content">
+                        <h3>GLOBAL NODE NETWORK</h3>
+                        <p>High-speed secure nodes across multiple continents</p>
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">[*]</div>
+                    <div class="feature-content">
+                        <h3>ZERO CONFIGURATION</h3>
+                        <p>Pre-configured secure tunnel - instant deployment</p>
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">[#]</div>
+                    <div class="feature-content">
+                        <h3>DNS LEAK PROTECTION</h3>
+                        <p>All DNS queries encrypted through secure tunnel</p>
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">[>]</div>
+                    <div class="feature-content">
+                        <h3>24/7 MONITORING</h3>
+                        <p>Continuous health checks with auto-reconnection</p>
+                    </div>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 30px;">
+                <a href="/cgi-bin/luci" class="admin-link">ADVANCED SETTINGS</a>
+            </div>
+        </div>
+
+        <footer>
+            <p><strong>STRAT24 SECURE ACCESS NODE</strong></p>
+            <p style="margin-top: 10px;">
+                ENTERPRISE VPN INFRASTRUCTURE
+            </p>
+            <p style="margin-top: 15px; font-size: 12px;">
+                support@strat24.com
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        function switchServer(server, name) {
+            document.getElementById('current-location').textContent = name;
+
+            document.querySelectorAll('.server-card').forEach(card => {
+                card.classList.remove('active');
+                card.querySelector('.server-status').textContent = 'AVAILABLE';
+            });
+
+            const activeCard = document.getElementById('server-' + server);
+            activeCard.classList.add('active');
+            activeCard.querySelector('.server-status').textContent = 'CONNECTED';
+
+            document.getElementById('status-text').innerHTML = '<span class="loading"></span> SWITCHING...';
+
+            fetch('/cgi-bin/strat24-switch-server?server=' + server)
+                .then(response => response.json())
+                .then(data => {
+                    setTimeout(() => {
+                        document.getElementById('status-text').textContent = 'ENCRYPTED';
+                    }, 2000);
+                })
+                .catch(error => {
+                    setTimeout(() => {
+                        document.getElementById('status-text').textContent = 'ENCRYPTED';
+                    }, 2000);
+                });
+        }
+    </script>
+</body>
+</html>
+
