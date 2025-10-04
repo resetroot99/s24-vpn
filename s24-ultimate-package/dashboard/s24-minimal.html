@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S24 Security Router</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #0a0a0a;
+            color: #e0e0e0;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        /* Mode Toggle */
+        .mode-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: rgba(255, 140, 0, 0.1);
+            border: 1px solid rgba(255, 140, 0, 0.3);
+            border-radius: 20px;
+            padding: 3px;
+            display: flex;
+            gap: 3px;
+        }
+        
+        .mode-btn {
+            padding: 8px 16px;
+            border: none;
+            background: transparent;
+            color: #888;
+            cursor: pointer;
+            border-radius: 17px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            transition: all 0.3s;
+            text-transform: uppercase;
+        }
+        
+        .mode-btn:hover { color: #ff8c00; }
+        
+        .mode-btn.active {
+            background: #ff8c00;
+            color: #fff;
+        }
+        
+        .container { display: flex; height: 100vh; }
+        
+        /* Sidebar */
+        .sidebar {
+            width: 240px;
+            background: #1a1a1a;
+            border-right: 1px solid rgba(255, 140, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+        
+        .logo {
+            padding: 30px 20px;
+            border-bottom: 1px solid rgba(255, 140, 0, 0.1);
+            font-size: 28px;
+            font-weight: 900;
+            color: #ff8c00;
+            text-align: center;
+            letter-spacing: 6px;
+        }
+        
+        .nav-menu { flex: 1; padding: 20px 0; }
+        
+        .nav-section { margin-bottom: 20px; }
+        
+        .nav-section-title {
+            padding: 10px 20px;
+            font-size: 10px;
+            color: #555;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 700;
+        }
+        
+        .nav-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            border-left: 3px solid transparent;
+            transition: all 0.2s;
+            font-size: 13px;
+            font-weight: 500;
+            color: #888;
+        }
+        
+        .nav-item:hover {
+            background: rgba(255, 140, 0, 0.1);
+            border-left-color: #ff8c00;
+            color: #e0e0e0;
+        }
+        
+        .nav-item.active {
+            background: rgba(255, 140, 0, 0.15);
+            border-left-color: #ff8c00;
+            color: #ff8c00;
+        }
+        
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        /* Header */
+        .header {
+            background: #1a1a1a;
+            border-bottom: 1px solid rgba(255, 140, 0, 0.1);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #e0e0e0;
+        }
+        
+        .security-badge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 20px;
+            background: #00aa00;
+            color: #000;
+            font-weight: 700;
+            font-size: 12px;
+            border-radius: 20px;
+            letter-spacing: 1px;
+        }
+        
+        /* Content Area */
+        .content-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 40px;
+        }
+        
+        /* Cards */
+        .card {
+            background: #1a1a1a;
+            border: 1px solid rgba(255, 140, 0, 0.2);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+        
+        .card-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #ff8c00;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        /* Grid */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+        
+        /* Stat Box */
+        .stat-box {
+            background: rgba(255, 140, 0, 0.05);
+            border: 1px solid rgba(255, 140, 0, 0.2);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #e0e0e0;
+            margin-bottom: 8px;
+        }
+        
+        .stat-label {
+            font-size: 11px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        /* Server List */
+        .server-list {
+            display: grid;
+            gap: 12px;
+        }
+        
+        .server-item {
+            background: rgba(255, 140, 0, 0.05);
+            border: 1px solid rgba(255, 140, 0, 0.2);
+            border-radius: 10px;
+            padding: 18px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .server-item:hover {
+            background: rgba(255, 140, 0, 0.1);
+            border-color: rgba(255, 140, 0, 0.4);
+        }
+        
+        .server-item.active {
+            background: rgba(0, 255, 0, 0.1);
+            border-color: rgba(0, 255, 0, 0.4);
+        }
+        
+        .server-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .server-flag {
+            font-size: 20px;
+            width: 30px;
+            text-align: center;
+        }
+        
+        .server-details {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .server-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #e0e0e0;
+        }
+        
+        .server-location {
+            font-size: 11px;
+            color: #666;
+        }
+        
+        .server-ping {
+            font-size: 12px;
+            font-weight: 600;
+            color: #00ff00;
+        }
+        
+        /* Status Dot */
+        .status-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .status-dot.online { 
+            background: #00ff00; 
+            box-shadow: 0 0 10px #00ff00;
+        }
+        
+        .status-dot.offline { 
+            background: #ff0000; 
+            box-shadow: 0 0 10px #ff0000;
+        }
+        
+        /* Toggle Switch */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+        }
+        
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #333;
+            transition: .3s;
+            border-radius: 26px;
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 4px;
+            bottom: 4px;
+            background: #888;
+            transition: .3s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .toggle-slider {
+            background: #ff8c00;
+        }
+        
+        input:checked + .toggle-slider:before {
+            transform: translateX(24px);
+            background: #fff;
+        }
+        
+        /* Button */
+        .btn {
+            background: #ff8c00;
+            border: none;
+            color: #000;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .btn:hover {
+            background: #ffa500;
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 140, 0, 0.2);
+            color: #ff8c00;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 140, 0, 0.3);
+        }
+        
+        /* Mode Cards */
+        .mode-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        
+        .mode-card {
+            background: rgba(255, 140, 0, 0.05);
+            border: 1px solid rgba(255, 140, 0, 0.2);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .mode-card:hover {
+            background: rgba(255, 140, 0, 0.1);
+            border-color: rgba(255, 140, 0, 0.4);
+        }
+        
+        .mode-name {
+            font-size: 14px;
+            font-weight: 700;
+            color: #e0e0e0;
+            margin-bottom: 6px;
+        }
+        
+        .mode-desc {
+            font-size: 11px;
+            color: #666;
+        }
+        
+        /* Hidden */
+        .hidden { display: none; }
+        
+        /* Simple Mode */
+        .simple-mode .nav-section:not(:first-child) { display: none; }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1a1a1a; }
+        ::-webkit-scrollbar-thumb { 
+            background: rgba(255, 140, 0, 0.3);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover { 
+            background: rgba(255, 140, 0, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="mode-toggle">
+        <button class="mode-btn active" onclick="setMode('simple')">Simple</button>
+        <button class="mode-btn" onclick="setMode('advanced')">Advanced</button>
+    </div>
+    
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">S24</div>
+            <div class="nav-menu">
+                <div class="nav-section">
+                    <div class="nav-section-title">Essentials</div>
+                    <div class="nav-item active essential" onclick="showSection('dashboard')">Dashboard</div>
+                    <div class="nav-item essential" onclick="showSection('vpn')">VPN</div>
+                    <div class="nav-item essential" onclick="showSection('devices')">Devices</div>
+                    <div class="nav-item essential" onclick="showSection('wifi')">WiFi</div>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Security</div>
+                    <div class="nav-item" onclick="showSection('security')">Security</div>
+                    <div class="nav-item" onclick="showSection('privacy')">Privacy Modes</div>
+                    <div class="nav-item" onclick="showSection('parental')">Parental Controls</div>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Advanced</div>
+                    <div class="nav-item" onclick="showSection('network')">Network</div>
+                    <div class="nav-item" onclick="showSection('firewall')">Firewall</div>
+                    <div class="nav-item" onclick="showSection('system')">System</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <div class="header-title">Welcome back</div>
+                <div class="security-badge">
+                    <span>SECURE</span>
+                    <span>•</span>
+                    <span>Grade A</span>
+                </div>
+            </div>
+            
+            <div class="content-area">
+                <!-- Dashboard Section -->
+                <div id="section-dashboard">
+                    <!-- Status Overview -->
+                    <div class="card">
+                        <div class="card-title">Status Overview</div>
+                        <div class="grid-4">
+                            <div class="stat-box">
+                                <div class="stat-value">
+                                    <span class="status-dot offline" id="vpn-status-dot"></span>
+                                </div>
+                                <div class="stat-label">VPN</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-value">3</div>
+                                <div class="stat-label">Devices</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-value">2.4 GB</div>
+                                <div class="stat-label">Data Today</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-value">1,247</div>
+                                <div class="stat-label">Blocked</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- VPN Control -->
+                    <div class="card">
+                        <div class="card-title">VPN Connection</div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                            <div>
+                                <div style="font-size: 14px; color: #888; margin-bottom: 5px;">Status</div>
+                                <div style="font-size: 16px; font-weight: 600; color: #e0e0e0;" id="vpn-status-text">Disconnected</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="vpn-toggle" onchange="toggleVPN()">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        
+                        <div class="server-list" id="server-list">
+                            <div class="server-item" onclick="selectServer('nl1', this)">
+                                <div class="server-info">
+                                    <div class="server-flag">NL</div>
+                                    <div class="server-details">
+                                        <div class="server-name">Netherlands</div>
+                                        <div class="server-location">Amsterdam</div>
+                                    </div>
+                                </div>
+                                <div class="server-ping">12ms</div>
+                            </div>
+                            
+                            <div class="server-item" onclick="selectServer('ca3', this)">
+                                <div class="server-info">
+                                    <div class="server-flag">CA</div>
+                                    <div class="server-details">
+                                        <div class="server-name">Canada</div>
+                                        <div class="server-location">Toronto</div>
+                                    </div>
+                                </div>
+                                <div class="server-ping">45ms</div>
+                            </div>
+                            
+                            <div class="server-item" onclick="selectServer('us1', this)">
+                                <div class="server-info">
+                                    <div class="server-flag">US</div>
+                                    <div class="server-details">
+                                        <div class="server-name">USA</div>
+                                        <div class="server-location">New York</div>
+                                    </div>
+                                </div>
+                                <div class="server-ping">38ms</div>
+                            </div>
+                            
+                            <div class="server-item" onclick="selectServer('th1', this)">
+                                <div class="server-info">
+                                    <div class="server-flag">TH</div>
+                                    <div class="server-details">
+                                        <div class="server-name">Thailand</div>
+                                        <div class="server-location">Bangkok</div>
+                                    </div>
+                                </div>
+                                <div class="server-ping">85ms</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Privacy Modes -->
+                    <div class="card">
+                        <div class="card-title">Quick Privacy Modes</div>
+                        <div class="mode-grid">
+                            <div class="mode-card" onclick="activateMode('home')">
+                                <div class="mode-name">Home Mode</div>
+                                <div class="mode-desc">VPN off • Adblock on</div>
+                            </div>
+                            
+                            <div class="mode-card" onclick="activateMode('travel')">
+                                <div class="mode-name">Travel Mode</div>
+                                <div class="mode-desc">VPN on • Kill switch</div>
+                            </div>
+                            
+                            <div class="mode-card" onclick="activateMode('coffee')">
+                                <div class="mode-name">Public WiFi</div>
+                                <div class="mode-desc">VPN on • Hidden SSID</div>
+                            </div>
+                            
+                            <div class="mode-card" onclick="activateMode('family')">
+                                <div class="mode-name">Family Safe</div>
+                                <div class="mode-desc">Parental controls on</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Other sections hidden -->
+                <div id="section-vpn" class="hidden">
+                    <div class="card">
+                        <div class="card-title">VPN Settings</div>
+                        <p style="color: #666;">VPN configuration options...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let currentMode = 'simple';
+        let selectedServer = null;
+        let vpnEnabled = false;
+        
+        // Mode switching
+        function setMode(mode) {
+            currentMode = mode;
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            if (mode === 'simple') {
+                document.body.classList.add('simple-mode');
+            } else {
+                document.body.classList.remove('simple-mode');
+            }
+        }
+        
+        // Section navigation
+        function showSection(section) {
+            document.querySelectorAll('.content-area > div[id^="section-"]').forEach(el => {
+                el.classList.add('hidden');
+            });
+            document.getElementById('section-' + section).classList.remove('hidden');
+            
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+        }
+        
+        // VPN toggle
+        function toggleVPN() {
+            vpnEnabled = document.getElementById('vpn-toggle').checked;
+            const statusDot = document.getElementById('vpn-status-dot');
+            const statusText = document.getElementById('vpn-status-text');
+            
+            if (vpnEnabled) {
+                statusDot.classList.remove('offline');
+                statusDot.classList.add('online');
+                statusText.textContent = 'Connected';
+                if (selectedServer) {
+                    statusText.textContent = 'Connected to ' + selectedServer.toUpperCase();
+                }
+            } else {
+                statusDot.classList.remove('online');
+                statusDot.classList.add('offline');
+                statusText.textContent = 'Disconnected';
+            }
+        }
+        
+        // Server selection
+        function selectServer(server, element) {
+            // Remove active from all
+            document.querySelectorAll('.server-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Add active to selected
+            element.classList.add('active');
+            selectedServer = server;
+            
+            // Auto-enable VPN
+            if (!vpnEnabled) {
+                document.getElementById('vpn-toggle').checked = true;
+                toggleVPN();
+            } else {
+                document.getElementById('vpn-status-text').textContent = 'Connected to ' + server.toUpperCase();
+            }
+        }
+        
+        // Privacy modes
+        function activateMode(mode) {
+            const messages = {
+                'home': 'Home Mode:\nVPN OFF • Adblock ON',
+                'travel': 'Travel Mode:\nVPN ON • Kill Switch ON',
+                'coffee': 'Public WiFi Mode:\nVPN ON • SSID Hidden',
+                'family': 'Family Safe Mode:\nParental Controls ON'
+            };
+            alert(messages[mode] || 'Mode activated');
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            document.body.classList.add('simple-mode');
+        });
+    </script>
+</body>
+</html>
+

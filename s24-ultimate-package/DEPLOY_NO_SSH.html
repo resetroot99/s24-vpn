@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>S24 Manual Deployment - No SSH Needed</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: #0a0a0a;
+            color: #e0e0e0;
+            padding: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .container {
+            background: #1a1a1a;
+            border: 2px solid #ff8c00;
+            border-radius: 10px;
+            padding: 30px;
+        }
+        h1 {
+            color: #ff8c00;
+            text-align: center;
+            font-size: 28px;
+            margin-bottom: 30px;
+        }
+        h2 {
+            color: #ff8c00;
+            font-size: 20px;
+            margin-top: 30px;
+            border-bottom: 2px solid rgba(255, 140, 0, 0.3);
+            padding-bottom: 10px;
+        }
+        .step {
+            background: rgba(255, 140, 0, 0.05);
+            border-left: 4px solid #ff8c00;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .step-number {
+            color: #ff8c00;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        code {
+            background: #000;
+            color: #00ff00;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        .code-block {
+            background: #000;
+            color: #00ff00;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 10px 0;
+            white-space: pre-wrap;
+            font-size: 12px;
+        }
+        .warning {
+            background: rgba(255, 140, 0, 0.2);
+            border: 2px solid #ff8c00;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        .success {
+            background: rgba(0, 255, 0, 0.1);
+            border: 2px solid #00ff00;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        button {
+            background: #ff8c00;
+            color: #000;
+            border: none;
+            padding: 12px 30px;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #ffa500;
+        }
+        .option {
+            background: rgba(255, 140, 0, 0.05);
+            border: 1px solid rgba(255, 140, 0, 0.3);
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>S24 VPN Router - Manual Deployment (No SSH Required)</h1>
+        
+        <div class="warning">
+            <strong>⚠️ LuCI Login Loop Issue Detected</strong><br>
+            Don't worry! We have alternative deployment methods that don't require SSH.
+        </div>
+
+        <h2>🔧 Method 1: GL.iNet File Manager (Easiest)</h2>
+        
+        <div class="step">
+            <div class="step-number">Step 1:</div>
+            <p>Open GL.iNet admin panel: <code>http://192.168.8.1</code></p>
+            <button onclick="window.open('http://192.168.8.1', '_blank')">Open Router Admin</button>
+        </div>
+
+        <div class="step">
+            <div class="step-number">Step 2:</div>
+            <p>Go to: <strong>Applications → File Sharing</strong> or <strong>System → File Manager</strong></p>
+            <p>(Exact location depends on your firmware version)</p>
+        </div>
+
+        <div class="step">
+            <div class="step-number">Step 3:</div>
+            <p>Navigate to <code>/www</code> folder</p>
+            <p>Create new folder: <code>s24</code></p>
+        </div>
+
+        <div class="step">
+            <div class="step-number">Step 4:</div>
+            <p>Upload the S24 dashboard file to <code>/www/s24/</code></p>
+            <p>Rename it to: <code>index.html</code></p>
+            <button onclick="alert('File location: /Users/v3ctor/s24-vpn/s24-ultimate-package/dashboard/s24-opal-optimized.html')">
+                Show File Location
+            </button>
+        </div>
+
+        <div class="step">
+            <div class="step-number">Step 5:</div>
+            <p>Access your dashboard at: <code>http://192.168.8.1/s24/</code></p>
+            <button onclick="window.open('http://192.168.8.1/s24/', '_blank')">Open S24 Dashboard</button>
+        </div>
+
+        <h2>🔧 Method 2: Fix LuCI Login Loop</h2>
+        
+        <div class="option">
+            <h3>Option A: Clear Browser Cache</h3>
+            <div class="step">
+                <p>1. Clear browser cookies for <code>192.168.8.1</code></p>
+                <p>2. Open in incognito/private window</p>
+                <p>3. Try logging in again</p>
+            </div>
+        </div>
+
+        <div class="option">
+            <h3>Option B: Try Different Browser</h3>
+            <div class="step">
+                <p>LuCI sometimes has issues with certain browsers</p>
+                <p>Try: Safari, Firefox, or Chrome (different from current)</p>
+            </div>
+        </div>
+
+        <div class="option">
+            <h3>Option C: Access via Telnet (if enabled)</h3>
+            <div class="step">
+                <p>Open Terminal and run:</p>
+                <div class="code-block">telnet 192.168.8.1
+# Login as root (no password by default)
+# Then run:
+mkdir -p /www/s24
+# Exit telnet
+# Then use file manager or SCP to upload dashboard</div>
+            </div>
+        </div>
+
+        <h2>🔧 Method 3: Minimal Manual Install</h2>
+        
+        <div class="step">
+            <div class="step-number">Download Dashboard:</div>
+            <p>Copy this file to a USB drive or download it:</p>
+            <button onclick="showFilePath()">Show Dashboard File Path</button>
+            <p id="filepath" style="display:none; margin-top:10px; color:#00ff00;">
+                <code>/Users/v3ctor/s24-vpn/s24-ultimate-package/dashboard/s24-opal-optimized.html</code>
+            </p>
+        </div>
+
+        <div class="step">
+            <div class="step-number">Upload via GL.iNet:</div>
+            <p>Use any of these GL.iNet features:</p>
+            <ul>
+                <li>File Sharing (if enabled)</li>
+                <li>Web Upload (in Applications)</li>
+                <li>FTP (if configured)</li>
+            </ul>
+        </div>
+
+        <h2>🔧 Method 4: Simple Test Dashboard</h2>
+        
+        <div class="success">
+            <strong>✅ No Installation Needed!</strong><br>
+            You can run the S24 dashboard directly from your computer:
+        </div>
+
+        <div class="step">
+            <div class="step-number">Local Testing:</div>
+            <p>The dashboard works in demo mode without backend</p>
+            <button onclick="window.open('file:///Users/v3ctor/s24-vpn/s24-ultimate-package/dashboard/s24-opal-optimized.html', '_blank')">
+                Open Dashboard Locally
+            </button>
+            <p style="margin-top:10px; color:#888; font-size:12px;">
+                (This opens the dashboard on your Mac - features will be in demo mode)
+            </p>
+        </div>
+
+        <h2>📞 Next Steps</h2>
+        
+        <div class="warning">
+            <strong>Choose Your Method:</strong>
+            <ol>
+                <li><strong>Method 1 (Recommended):</strong> Use GL.iNet File Manager - easiest, no SSH needed</li>
+                <li><strong>Method 2:</strong> Fix LuCI login - then enable SSH normally</li>
+                <li><strong>Method 3:</strong> Manual file upload via USB or GL.iNet apps</li>
+                <li><strong>Method 4:</strong> Test locally first, deploy later</li>
+            </ol>
+        </div>
+
+        <div class="success">
+            <strong>✅ Safe Deployment Guaranteed:</strong>
+            <ul>
+                <li>No network config changes</li>
+                <li>No WiFi changes</li>
+                <li>GL.iNet panel still works</li>
+                <li>Can be removed anytime</li>
+            </ul>
+        </div>
+
+        <div style="text-align: center; margin-top: 40px;">
+            <button onclick="window.open('http://192.168.8.1', '_blank')" style="font-size: 16px; padding: 15px 40px;">
+                Open Router Admin Panel
+            </button>
+        </div>
+    </div>
+
+    <script>
+        function showFilePath() {
+            document.getElementById('filepath').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
+

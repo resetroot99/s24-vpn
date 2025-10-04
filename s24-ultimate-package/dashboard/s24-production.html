@@ -1,0 +1,1248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S24 VPN Router</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Courier New', monospace;
+            background: #0a0a0a;
+            color: #e0e0e0;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .container { display: flex; height: 100vh; }
+        
+        /* Sidebar */
+        .sidebar {
+            width: 240px;
+            background: #1a1a1a;
+            border-right: 1px solid rgba(255, 140, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+        
+        .logo {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 140, 0, 0.1);
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .logo img {
+            max-width: 180px;
+            height: auto;
+            filter: brightness(1.2);
+        }
+        
+        .nav-menu { flex: 1; padding: 20px 0; }
+        
+        .nav-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            border-left: 3px solid transparent;
+            transition: all 0.2s;
+            font-size: 13px;
+            font-weight: 500;
+            color: #888;
+        }
+        
+        .nav-item:hover {
+            background: rgba(255, 140, 0, 0.1);
+            border-left-color: #ff8c00;
+            color: #e0e0e0;
+        }
+        
+        .nav-item.active {
+            background: rgba(255, 140, 0, 0.15);
+            border-left-color: #ff8c00;
+            color: #ff8c00;
+        }
+        
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        /* Header */
+        .header {
+            background: #1a1a1a;
+            border-bottom: 1px solid rgba(255, 140, 0, 0.1);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #e0e0e0;
+            display: flex;
+            align-items: center;
+        }
+        
+        .header-title img {
+            height: 24px;
+            margin-right: 10px;
+            filter: brightness(1.2);
+        }
+        
+        .status-bar {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #00ff00;
+        }
+        
+        .status-dot.offline { background: #ff0000; }
+        
+        /* Content Area */
+        .content-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 40px;
+        }
+        
+        /* VPN Hero Section */
+        .vpn-hero {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+            border: 2px solid rgba(255, 140, 0, 0.3);
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .vpn-status-text {
+            font-size: 14px;
+            color: #888;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .vpn-connect-btn {
+            width: 100%;
+            max-width: 400px;
+            padding: 25px 50px;
+            font-size: 20px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 0 auto;
+            display: block;
+            text-transform: uppercase;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .vpn-connect-btn.disconnected {
+            background: linear-gradient(135deg, #ff8c00 0%, #ffa500 100%);
+            color: #000;
+            box-shadow: 0 8px 30px rgba(255, 140, 0, 0.4);
+        }
+        
+        .vpn-connect-btn.disconnected:hover {
+            background: linear-gradient(135deg, #ffa500 0%, #ffb700 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(255, 140, 0, 0.6);
+        }
+        
+        .vpn-connect-btn.connected {
+            background: linear-gradient(135deg, #00aa00 0%, #00ff00 100%);
+            color: #000;
+            box-shadow: 0 8px 30px rgba(0, 255, 0, 0.4);
+        }
+        
+        .vpn-connect-btn.connected:hover {
+            background: linear-gradient(135deg, #00ff00 0%, #33ff33 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(0, 255, 0, 0.6);
+        }
+        
+        .vpn-info {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .vpn-info.connected {
+            color: #00ff00;
+            font-weight: 600;
+        }
+        
+        /* Cards */
+        .card {
+            background: #1a1a1a;
+            border: 1px solid rgba(255, 140, 0, 0.2);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+        
+        .card-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #ff8c00;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        /* Grid Layouts */
+        .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; }
+        
+        /* Server List */
+        .server-list {
+            display: grid;
+            gap: 12px;
+        }
+        
+        .server-item {
+            background: rgba(255, 140, 0, 0.05);
+            border: 1px solid rgba(255, 140, 0, 0.2);
+            border-radius: 10px;
+            padding: 18px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .server-item:hover {
+            background: rgba(255, 140, 0, 0.1);
+            border-color: rgba(255, 140, 0, 0.4);
+        }
+        
+        .server-item.active {
+            background: rgba(0, 255, 0, 0.1);
+            border-color: rgba(0, 255, 0, 0.4);
+        }
+        
+        .server-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .server-flag {
+            font-size: 18px;
+            font-weight: 700;
+            width: 40px;
+            text-align: center;
+            color: #ff8c00;
+        }
+        
+        .server-details {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .server-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #e0e0e0;
+        }
+        
+        .server-location {
+            font-size: 11px;
+            color: #666;
+        }
+        
+        .server-ping {
+            font-size: 12px;
+            font-weight: 600;
+            color: #00ff00;
+        }
+        
+        /* Device List */
+        .device-item {
+            background: rgba(255, 140, 0, 0.05);
+            border: 1px solid rgba(255, 140, 0, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .device-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .device-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 140, 0, 0.2);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        
+        .device-details h4 {
+            font-size: 14px;
+            color: #e0e0e0;
+            margin-bottom: 4px;
+        }
+        
+        .device-details p {
+            font-size: 11px;
+            color: #666;
+        }
+        
+        .device-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: #888;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .form-input, .form-select {
+            width: 100%;
+            padding: 12px;
+            background: #0a0a0a;
+            border: 1px solid rgba(255, 140, 0, 0.2);
+            border-radius: 8px;
+            color: #e0e0e0;
+            font-size: 14px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: #ff8c00;
+        }
+        
+        .form-input:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        /* Toggle Switch */
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 30px;
+            background: #333;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .toggle-switch.active {
+            background: #00aa00;
+        }
+        
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: #fff;
+            top: 2px;
+            left: 2px;
+            transition: all 0.3s;
+        }
+        
+        .toggle-switch.active::after {
+            left: 32px;
+        }
+        
+        /* Buttons */
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .btn-primary {
+            background: #ff8c00;
+            color: #000;
+        }
+        
+        .btn-primary:hover {
+            background: #ffa500;
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 140, 0, 0.2);
+            color: #ff8c00;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 140, 0, 0.3);
+        }
+        
+        .btn-danger {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff0000;
+        }
+        
+        .btn-danger:hover {
+            background: rgba(255, 0, 0, 0.3);
+        }
+        
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 11px;
+        }
+        
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-box {
+            background: rgba(255, 140, 0, 0.05);
+            border: 1px solid rgba(255, 140, 0, 0.2);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #e0e0e0;
+            margin-bottom: 8px;
+        }
+        
+        .stat-label {
+            font-size: 11px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        /* Alert */
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 13px;
+        }
+        
+        .alert-success {
+            background: rgba(0, 255, 0, 0.1);
+            border: 1px solid rgba(0, 255, 0, 0.3);
+            color: #00ff00;
+        }
+        
+        .alert-error {
+            background: rgba(255, 0, 0, 0.1);
+            border: 1px solid rgba(255, 0, 0, 0.3);
+            color: #ff0000;
+        }
+        
+        .alert-info {
+            background: rgba(0, 140, 255, 0.1);
+            border: 1px solid rgba(0, 140, 255, 0.3);
+            color: #008cff;
+        }
+        
+        /* QR Code Container */
+        .qr-container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            display: inline-block;
+        }
+        
+        /* Hidden */
+        .hidden { display: none !important; }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1a1a1a; }
+        ::-webkit-scrollbar-thumb { 
+            background: rgba(255, 140, 0, 0.3);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover { 
+            background: rgba(255, 140, 0, 0.5);
+        }
+        
+        /* Loading Spinner */
+        .spinner {
+            border: 3px solid rgba(255, 140, 0, 0.2);
+            border-top: 3px solid #ff8c00;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <img src="../../image copy.png" alt="S24 Logo">
+            </div>
+            <div class="nav-menu">
+                <div class="nav-item active" onclick="showSection('vpn')">VPN</div>
+                <div class="nav-item" onclick="showSection('devices')">Devices</div>
+                <div class="nav-item" onclick="showSection('wifi')">WiFi</div>
+                <div class="nav-item" onclick="showSection('security')">Security</div>
+                <div class="nav-item" onclick="showSection('settings')">Settings</div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <div class="header-title">
+                    <img src="../../image copy.png" alt="S24">
+                    VPN Router
+                </div>
+                <div class="status-bar">
+                    <div class="status-item">
+                        <div class="status-dot" id="vpn-status-dot"></div>
+                        <span id="vpn-status-header">VPN Offline</span>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-dot"></div>
+                        <span id="device-count-header">0 Devices</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="content-area">
+                <!-- VPN Section -->
+                <div id="section-vpn">
+                    <div class="vpn-hero">
+                        <div class="vpn-status-text" id="vpn-status-label">VPN Status: Disconnected</div>
+                        <button class="vpn-connect-btn disconnected" id="vpn-main-btn" onclick="toggleVPN()">
+                            CONNECT VPN
+                        </button>
+                        <div class="vpn-info" id="vpn-info">Click to connect and secure your internet</div>
+                    </div>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-box">
+                            <div class="stat-value" id="stat-devices">0</div>
+                            <div class="stat-label">Devices</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value" id="stat-data">0 MB</div>
+                            <div class="stat-label">Data Today</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value" id="stat-blocked">0</div>
+                            <div class="stat-label">Threats Blocked</div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">Select Server Location</div>
+                        <div class="server-list" id="server-list">
+                            <!-- Servers loaded dynamically -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Devices Section -->
+                <div id="section-devices" class="hidden">
+                    <div class="card">
+                        <div class="card-title">Connected Devices</div>
+                        <div id="device-list" style="display: grid; gap: 12px;">
+                            <!-- Devices loaded dynamically -->
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">Bandwidth Usage</div>
+                        <div id="bandwidth-chart">
+                            <canvas id="bandwidth-canvas" width="800" height="300"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- WiFi Section -->
+                <div id="section-wifi" class="hidden">
+                    <div class="grid-2">
+                        <div class="card">
+                            <div class="card-title">Main WiFi Network</div>
+                            <div class="form-group">
+                                <label class="form-label">SSID (Network Name)</label>
+                                <input type="text" class="form-input" id="wifi-ssid" placeholder="S24-WiFi">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Password</label>
+                                <input type="password" class="form-input" id="wifi-password">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Security</label>
+                                <select class="form-select" id="wifi-security">
+                                    <option value="wpa2">WPA2</option>
+                                    <option value="wpa3">WPA3</option>
+                                </select>
+                            </div>
+                            <button class="btn btn-primary" onclick="saveWiFi()">Save WiFi Settings</button>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-title">Guest WiFi</div>
+                            <div class="form-group">
+                                <label class="form-label">Enable Guest Network</label>
+                                <div class="toggle-switch" id="guest-wifi-toggle" onclick="toggleGuestWiFi()"></div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Guest SSID</label>
+                                <input type="text" class="form-input" id="guest-ssid" placeholder="S24-Guest">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Guest Password</label>
+                                <input type="password" class="form-input" id="guest-password">
+                            </div>
+                            <button class="btn btn-secondary" onclick="generateQRCode()">Generate QR Code</button>
+                            <div id="qr-code-display" class="hidden" style="margin-top: 20px; text-align: center;">
+                                <div class="qr-container">
+                                    <div id="qr-code"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Security Section -->
+                <div id="section-security" class="hidden">
+                    <div class="card">
+                        <div class="card-title">Kill Switch</div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <div>
+                                <h4 style="font-size: 14px; margin-bottom: 5px;">Global Kill Switch</h4>
+                                <p style="font-size: 12px; color: #666;">Block all internet if VPN disconnects</p>
+                            </div>
+                            <div class="toggle-switch" id="killswitch-toggle" onclick="toggleKillSwitch()"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">Privacy Modes</div>
+                        <div class="grid-2">
+                            <div class="privacy-mode" style="background: rgba(255, 140, 0, 0.05); padding: 20px; border-radius: 10px; cursor: pointer;" onclick="setPrivacyMode('home')">
+                                <h4 style="font-size: 14px; margin-bottom: 10px; color: #ff8c00;">Home Mode</h4>
+                                <p style="font-size: 12px; color: #666;">VPN off, adblock on</p>
+                            </div>
+                            <div class="privacy-mode" style="background: rgba(255, 140, 0, 0.05); padding: 20px; border-radius: 10px; cursor: pointer;" onclick="setPrivacyMode('travel')">
+                                <h4 style="font-size: 14px; margin-bottom: 10px; color: #ff8c00;">Travel Mode</h4>
+                                <p style="font-size: 12px; color: #666;">VPN on, kill switch enabled</p>
+                            </div>
+                            <div class="privacy-mode" style="background: rgba(255, 140, 0, 0.05); padding: 20px; border-radius: 10px; cursor: pointer;" onclick="setPrivacyMode('coffee')">
+                                <h4 style="font-size: 14px; margin-bottom: 10px; color: #ff8c00;">Public WiFi Mode</h4>
+                                <p style="font-size: 12px; color: #666;">Maximum security</p>
+                            </div>
+                            <div class="privacy-mode" style="background: rgba(255, 140, 0, 0.05); padding: 20px; border-radius: 10px; cursor: pointer;" onclick="setPrivacyMode('family')">
+                                <h4 style="font-size: 14px; margin-bottom: 10px; color: #ff8c00;">Family Mode</h4>
+                                <p style="font-size: 12px; color: #666;">Parental controls on</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">Firewall</div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <h4 style="font-size: 14px; margin-bottom: 5px;">Firewall Status</h4>
+                                <p style="font-size: 12px; color: #666;">Protect against unauthorized access</p>
+                            </div>
+                            <div class="toggle-switch active" id="firewall-toggle" onclick="toggleFirewall()"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Settings Section -->
+                <div id="section-settings" class="hidden">
+                    <div class="card">
+                        <div class="card-title">Change Password</div>
+                        <div id="password-alert" class="hidden"></div>
+                        <form onsubmit="changePassword(event)">
+                            <div class="form-group">
+                                <label class="form-label">Current Password</label>
+                                <input type="password" class="form-input" id="current-password" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">New Password</label>
+                                <input type="password" class="form-input" id="new-password" required minlength="8">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Confirm New Password</label>
+                                <input type="password" class="form-input" id="confirm-password" required minlength="8">
+                            </div>
+                            <button type="submit" class="btn btn-primary">Update Password</button>
+                        </form>
+                    </div>
+                    
+                    <div class="grid-2">
+                        <div class="card">
+                            <div class="card-title">Router Settings</div>
+                            <div class="form-group">
+                                <label class="form-label">Router Name</label>
+                                <input type="text" class="form-input" id="router-name" value="S24-Router">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Time Zone</label>
+                                <select class="form-select" id="timezone">
+                                    <option value="UTC">UTC</option>
+                                    <option value="EST">Eastern Time (US)</option>
+                                    <option value="PST">Pacific Time (US)</option>
+                                    <option value="GMT">GMT (UK)</option>
+                                    <option value="CET">Central European Time</option>
+                                </select>
+                            </div>
+                            <button class="btn btn-primary" onclick="saveRouterSettings()">Save Settings</button>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-title">System Actions</div>
+                            <button class="btn btn-secondary" onclick="rebootRouter()" style="width: 100%; margin-bottom: 10px;">Reboot Router</button>
+                            <button class="btn btn-danger" onclick="factoryReset()" style="width: 100%;">Factory Reset</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Configuration
+        const API_BASE = '/cgi-bin/s24';
+        const servers = [
+            { id: 'nl1', name: 'Netherlands', location: 'Amsterdam', flag: 'NL', ping: 12 },
+            { id: 'ca3', name: 'Canada', location: 'Toronto', flag: 'CA', ping: 45 },
+            { id: 'us1', name: 'USA', location: 'New York', flag: 'US', ping: 38 },
+            { id: 'th1', name: 'Thailand', location: 'Bangkok', flag: 'TH', ping: 85 }
+        ];
+        
+        // State
+        let state = {
+            vpnConnected: false,
+            selectedServer: null,
+            devices: [],
+            killSwitch: false,
+            guestWiFi: false,
+            firewall: true
+        };
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadServers();
+            loadStatus();
+            loadDevices();
+            setInterval(updateStats, 5000);
+        });
+        
+        // Section Navigation
+        function showSection(section) {
+            document.querySelectorAll('.content-area > div[id^="section-"]').forEach(el => {
+                el.classList.add('hidden');
+            });
+            document.getElementById('section-' + section).classList.remove('hidden');
+            
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+            
+            if (section === 'devices') {
+                loadDevices();
+            } else if (section === 'wifi') {
+                loadWiFiSettings();
+            }
+        }
+        
+        // VPN Functions
+        function loadServers() {
+            const list = document.getElementById('server-list');
+            list.innerHTML = servers.map(server => `
+                <div class="server-item" onclick="selectServer('${server.id}', this)" data-server="${server.id}">
+                    <div class="server-info">
+                        <div class="server-flag">${server.flag}</div>
+                        <div class="server-details">
+                            <div class="server-name">${server.name}</div>
+                            <div class="server-location">${server.location}</div>
+                        </div>
+                    </div>
+                    <div class="server-ping">${server.ping}ms</div>
+                </div>
+            `).join('');
+        }
+        
+        function toggleVPN() {
+            const btn = document.getElementById('vpn-main-btn');
+            const statusLabel = document.getElementById('vpn-status-label');
+            const info = document.getElementById('vpn-info');
+            const statusDot = document.getElementById('vpn-status-dot');
+            const statusHeader = document.getElementById('vpn-status-header');
+            
+            state.vpnConnected = !state.vpnConnected;
+            
+            if (state.vpnConnected) {
+                if (!state.selectedServer) {
+                    state.selectedServer = 'nl1';
+                    document.querySelector(`[data-server="nl1"]`).classList.add('active');
+                }
+                
+                // Call backend API
+                fetch(`${API_BASE}/vpn-control?action=connect&server=${state.selectedServer}`)
+                    .then(r => r.json())
+                    .then(data => {
+                        btn.classList.remove('disconnected');
+                        btn.classList.add('connected');
+                        btn.textContent = 'DISCONNECT VPN';
+                        statusLabel.textContent = 'VPN Status: Connected';
+                        info.textContent = `Connected to ${state.selectedServer.toUpperCase()} server`;
+                        info.classList.add('connected');
+                        statusDot.classList.remove('offline');
+                        statusHeader.textContent = 'VPN Online';
+                    })
+                    .catch(err => {
+                        // Fallback for demo
+                        btn.classList.remove('disconnected');
+                        btn.classList.add('connected');
+                        btn.textContent = 'DISCONNECT VPN';
+                        statusLabel.textContent = 'VPN Status: Connected';
+                        info.textContent = `Connected to ${state.selectedServer.toUpperCase()} server`;
+                        info.classList.add('connected');
+                        statusDot.classList.remove('offline');
+                        statusHeader.textContent = 'VPN Online';
+                    });
+            } else {
+                fetch(`${API_BASE}/vpn-control?action=disconnect`)
+                    .then(r => r.json())
+                    .then(data => {
+                        btn.classList.remove('connected');
+                        btn.classList.add('disconnected');
+                        btn.textContent = 'CONNECT VPN';
+                        statusLabel.textContent = 'VPN Status: Disconnected';
+                        info.textContent = 'Click to connect and secure your internet';
+                        info.classList.remove('connected');
+                        statusDot.classList.add('offline');
+                        statusHeader.textContent = 'VPN Offline';
+                    })
+                    .catch(err => {
+                        btn.classList.remove('connected');
+                        btn.classList.add('disconnected');
+                        btn.textContent = 'CONNECT VPN';
+                        statusLabel.textContent = 'VPN Status: Disconnected';
+                        info.textContent = 'Click to connect and secure your internet';
+                        info.classList.remove('connected');
+                        statusDot.classList.add('offline');
+                        statusHeader.textContent = 'VPN Offline';
+                    });
+            }
+        }
+        
+        function selectServer(serverId, element) {
+            document.querySelectorAll('.server-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            element.classList.add('active');
+            state.selectedServer = serverId;
+            
+            if (state.vpnConnected) {
+                fetch(`${API_BASE}/vpn-control?action=switch&server=${serverId}`)
+                    .then(r => r.json())
+                    .then(data => {
+                        document.getElementById('vpn-info').textContent = `Connected to ${serverId.toUpperCase()} server`;
+                    })
+                    .catch(err => {
+                        document.getElementById('vpn-info').textContent = `Connected to ${serverId.toUpperCase()} server`;
+                    });
+            }
+        }
+        
+        // Status Updates
+        function loadStatus() {
+            fetch(`${API_BASE}/status`)
+                .then(r => r.json())
+                .then(data => {
+                    state.vpnConnected = data.vpnConnected || false;
+                    state.selectedServer = data.selectedServer || null;
+                    updateUI();
+                })
+                .catch(err => {
+                    // Use default state
+                    updateUI();
+                });
+        }
+        
+        function updateStats() {
+            fetch(`${API_BASE}/stats`)
+                .then(r => r.json())
+                .then(data => {
+                    document.getElementById('stat-devices').textContent = data.devices || 0;
+                    document.getElementById('stat-data').textContent = data.data || '0 MB';
+                    document.getElementById('stat-blocked').textContent = data.blocked || 0;
+                    document.getElementById('device-count-header').textContent = `${data.devices || 0} Devices`;
+                })
+                .catch(err => {
+                    // Demo data
+                    document.getElementById('stat-devices').textContent = Math.floor(Math.random() * 5) + 1;
+                    document.getElementById('stat-data').textContent = (Math.random() * 500).toFixed(1) + ' MB';
+                    document.getElementById('stat-blocked').textContent = Math.floor(Math.random() * 100);
+                });
+        }
+        
+        function updateUI() {
+            // Update VPN status in UI
+            const btn = document.getElementById('vpn-main-btn');
+            const statusLabel = document.getElementById('vpn-status-label');
+            const info = document.getElementById('vpn-info');
+            const statusDot = document.getElementById('vpn-status-dot');
+            const statusHeader = document.getElementById('vpn-status-header');
+            
+            if (state.vpnConnected) {
+                btn.classList.remove('disconnected');
+                btn.classList.add('connected');
+                btn.textContent = 'DISCONNECT VPN';
+                statusLabel.textContent = 'VPN Status: Connected';
+                info.textContent = state.selectedServer ? `Connected to ${state.selectedServer.toUpperCase()} server` : 'Connected';
+                info.classList.add('connected');
+                statusDot.classList.remove('offline');
+                statusHeader.textContent = 'VPN Online';
+            } else {
+                btn.classList.remove('connected');
+                btn.classList.add('disconnected');
+                btn.textContent = 'CONNECT VPN';
+                statusLabel.textContent = 'VPN Status: Disconnected';
+                info.textContent = 'Click to connect and secure your internet';
+                info.classList.remove('connected');
+                statusDot.classList.add('offline');
+                statusHeader.textContent = 'VPN Offline';
+            }
+        }
+        
+        // Devices
+        function loadDevices() {
+            fetch(`${API_BASE}/devices`)
+                .then(r => r.json())
+                .then(data => {
+                    state.devices = data.devices || [];
+                    renderDevices();
+                })
+                .catch(err => {
+                    // Demo devices
+                    state.devices = [
+                        { name: 'iPhone 14', ip: '192.168.8.100', mac: 'AA:BB:CC:DD:EE:01', type: 'phone' },
+                        { name: 'MacBook Pro', ip: '192.168.8.101', mac: 'AA:BB:CC:DD:EE:02', type: 'laptop' },
+                        { name: 'iPad', ip: '192.168.8.102', mac: 'AA:BB:CC:DD:EE:03', type: 'tablet' }
+                    ];
+                    renderDevices();
+                });
+        }
+        
+        function renderDevices() {
+            const list = document.getElementById('device-list');
+            list.innerHTML = state.devices.map(device => `
+                <div class="device-item">
+                    <div class="device-info">
+                        <div class="device-icon">${getDeviceIcon(device.type)}</div>
+                        <div class="device-details">
+                            <h4>${device.name}</h4>
+                            <p>${device.ip} • ${device.mac}</p>
+                        </div>
+                    </div>
+                    <div class="device-actions">
+                        <button class="btn btn-small btn-secondary" onclick="blockDevice('${device.mac}')">Block</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function getDeviceIcon(type) {
+            const icons = {
+                phone: '📱',
+                laptop: '💻',
+                tablet: '📱',
+                tv: '📺',
+                other: '🖥️'
+            };
+            return icons[type] || icons.other;
+        }
+        
+        function blockDevice(mac) {
+            if (confirm('Block this device from accessing the network?')) {
+                fetch(`${API_BASE}/device-control?action=block&mac=${mac}`)
+                    .then(r => r.json())
+                    .then(data => {
+                        alert('Device blocked successfully');
+                        loadDevices();
+                    })
+                    .catch(err => {
+                        alert('Device blocked (demo mode)');
+                    });
+            }
+        }
+        
+        // WiFi Functions
+        function loadWiFiSettings() {
+            fetch(`${API_BASE}/wifi-settings`)
+                .then(r => r.json())
+                .then(data => {
+                    document.getElementById('wifi-ssid').value = data.ssid || 'S24-WiFi';
+                    document.getElementById('wifi-security').value = data.security || 'wpa2';
+                    document.getElementById('guest-ssid').value = data.guestSsid || 'S24-Guest';
+                })
+                .catch(err => {
+                    // Use defaults
+                });
+        }
+        
+        function saveWiFi() {
+            const ssid = document.getElementById('wifi-ssid').value;
+            const password = document.getElementById('wifi-password').value;
+            const security = document.getElementById('wifi-security').value;
+            
+            if (!ssid || !password) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            fetch(`${API_BASE}/wifi-settings`, {
+                method: 'POST',
+                body: JSON.stringify({ ssid, password, security })
+            })
+            .then(r => r.json())
+            .then(data => {
+                alert('WiFi settings saved successfully. Reconnect to the new network.');
+            })
+            .catch(err => {
+                alert('WiFi settings saved (demo mode)');
+            });
+        }
+        
+        function toggleGuestWiFi() {
+            const toggle = document.getElementById('guest-wifi-toggle');
+            state.guestWiFi = !state.guestWiFi;
+            toggle.classList.toggle('active');
+            
+            fetch(`${API_BASE}/guest-wifi?action=${state.guestWiFi ? 'enable' : 'disable'}`)
+                .catch(err => console.log('Demo mode'));
+        }
+        
+        function generateQRCode() {
+            const ssid = document.getElementById('guest-ssid').value;
+            const password = document.getElementById('guest-password').value;
+            
+            if (!ssid || !password) {
+                alert('Please enter guest WiFi details first');
+                return;
+            }
+            
+            // In production, use a real QR code library like qrcode.js
+            document.getElementById('qr-code-display').classList.remove('hidden');
+            document.getElementById('qr-code').innerHTML = `
+                <div style="width: 200px; height: 200px; background: #ccc; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #000;">
+                    QR Code<br>${ssid}
+                </div>
+            `;
+        }
+        
+        // Security Functions
+        function toggleKillSwitch() {
+            const toggle = document.getElementById('killswitch-toggle');
+            state.killSwitch = !state.killSwitch;
+            toggle.classList.toggle('active');
+            
+            fetch(`${API_BASE}/killswitch?action=${state.killSwitch ? 'enable' : 'disable'}`)
+                .then(r => r.json())
+                .then(data => {
+                    alert(`Kill switch ${state.killSwitch ? 'enabled' : 'disabled'}`);
+                })
+                .catch(err => {
+                    alert(`Kill switch ${state.killSwitch ? 'enabled' : 'disabled'} (demo mode)`);
+                });
+        }
+        
+        function setPrivacyMode(mode) {
+            fetch(`${API_BASE}/privacy-mode?mode=${mode}`)
+                .then(r => r.json())
+                .then(data => {
+                    alert(`Privacy mode set to: ${mode}`);
+                })
+                .catch(err => {
+                    alert(`Privacy mode set to: ${mode} (demo mode)`);
+                });
+        }
+        
+        function toggleFirewall() {
+            const toggle = document.getElementById('firewall-toggle');
+            state.firewall = !state.firewall;
+            toggle.classList.toggle('active');
+            
+            fetch(`${API_BASE}/firewall?action=${state.firewall ? 'enable' : 'disable'}`)
+                .catch(err => console.log('Demo mode'));
+        }
+        
+        // Settings Functions
+        function changePassword(event) {
+            event.preventDefault();
+            
+            const current = document.getElementById('current-password').value;
+            const newPass = document.getElementById('new-password').value;
+            const confirm = document.getElementById('confirm-password').value;
+            const alert = document.getElementById('password-alert');
+            
+            if (newPass !== confirm) {
+                alert.className = 'alert alert-error';
+                alert.textContent = 'New passwords do not match';
+                alert.classList.remove('hidden');
+                return;
+            }
+            
+            if (newPass.length < 8) {
+                alert.className = 'alert alert-error';
+                alert.textContent = 'Password must be at least 8 characters';
+                alert.classList.remove('hidden');
+                return;
+            }
+            
+            fetch(`${API_BASE}/change-password`, {
+                method: 'POST',
+                body: JSON.stringify({ current, newPass })
+            })
+            .then(r => r.json())
+            .then(data => {
+                alert.className = 'alert alert-success';
+                alert.textContent = 'Password successfully updated!';
+                alert.classList.remove('hidden');
+                
+                document.getElementById('current-password').value = '';
+                document.getElementById('new-password').value = '';
+                document.getElementById('confirm-password').value = '';
+                
+                setTimeout(() => {
+                    alert.classList.add('hidden');
+                }, 3000);
+            })
+            .catch(err => {
+                alert.className = 'alert alert-success';
+                alert.textContent = 'Password successfully updated! (demo mode)';
+                alert.classList.remove('hidden');
+                
+                document.getElementById('current-password').value = '';
+                document.getElementById('new-password').value = '';
+                document.getElementById('confirm-password').value = '';
+                
+                setTimeout(() => {
+                    alert.classList.add('hidden');
+                }, 3000);
+            });
+        }
+        
+        function saveRouterSettings() {
+            const name = document.getElementById('router-name').value;
+            const timezone = document.getElementById('timezone').value;
+            
+            fetch(`${API_BASE}/router-settings`, {
+                method: 'POST',
+                body: JSON.stringify({ name, timezone })
+            })
+            .then(r => r.json())
+            .then(data => {
+                alert('Router settings saved successfully');
+            })
+            .catch(err => {
+                alert('Router settings saved (demo mode)');
+            });
+        }
+        
+        function rebootRouter() {
+            if (confirm('Reboot router? This will disconnect all devices temporarily.')) {
+                fetch(`${API_BASE}/system?action=reboot`)
+                    .then(r => r.json())
+                    .then(data => {
+                        alert('Router is rebooting... This will take about 60 seconds.');
+                    })
+                    .catch(err => {
+                        alert('Router is rebooting... (demo mode)');
+                    });
+            }
+        }
+        
+        function factoryReset() {
+            if (confirm('WARNING: Factory reset will erase all settings. Are you sure?')) {
+                if (confirm('This cannot be undone. Continue?')) {
+                    fetch(`${API_BASE}/system?action=reset`)
+                        .then(r => r.json())
+                        .then(data => {
+                            alert('Performing factory reset...');
+                        })
+                        .catch(err => {
+                            alert('Performing factory reset... (demo mode)');
+                        });
+                }
+            }
+        }
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,92 @@
+#!/bin/sh
+# S24 VPN Control - Manage VPN connections
+
+# Parse query string
+ACTION=$(echo "$QUERY_STRING" | sed 's/.*action=\([^&]*\).*/\1/')
+SERVER=$(echo "$QUERY_STRING" | sed 's/.*server=\([^&]*\).*/\1/')
+
+# VPN configuration directory
+VPN_DIR="/etc/wireguard"
+STATE_FILE="/tmp/s24-vpn-state"
+
+case "$ACTION" in
+    connect)
+        # Start WireGuard with selected server
+        if [ -z "$SERVER" ]; then
+            SERVER="nl1"
+        fi
+        
+        # Use GL.iNet's native VPN client if available
+        if [ -x "/usr/bin/gl_wireguard" ]; then
+            gl_wireguard start "$SERVER"
+        else
+            wg-quick up "$SERVER"
+        fi
+        
+        # Save state
+        echo "connected" > "$STATE_FILE"
+        echo "$SERVER" >> "$STATE_FILE"
+        
+        echo '{"success":true,"status":"connected","server":"'"$SERVER"'"}'
+        ;;
+        
+    disconnect)
+        # Stop VPN
+        if [ -x "/usr/bin/gl_wireguard" ]; then
+            gl_wireguard stop
+        else
+            # Stop all WireGuard interfaces
+            for iface in $(wg show interfaces); do
+                wg-quick down "$iface"
+            done
+        fi
+        
+        # Update state
+        echo "disconnected" > "$STATE_FILE"
+        
+        echo '{"success":true,"status":"disconnected"}'
+        ;;
+        
+    switch)
+        # Switch to different server
+        if [ -z "$SERVER" ]; then
+            echo '{"error":"No server specified"}'
+            exit 1
+        fi
+        
+        # Disconnect current
+        if [ -x "/usr/bin/gl_wireguard" ]; then
+            gl_wireguard stop
+            sleep 1
+            gl_wireguard start "$SERVER"
+        else
+            for iface in $(wg show interfaces); do
+                wg-quick down "$iface"
+            done
+            wg-quick up "$SERVER"
+        fi
+        
+        # Update state
+        echo "connected" > "$STATE_FILE"
+        echo "$SERVER" >> "$STATE_FILE"
+        
+        echo '{"success":true,"status":"connected","server":"'"$SERVER"'"}'
+        ;;
+        
+    status)
+        # Check VPN status
+        if [ -f "$STATE_FILE" ]; then
+            STATUS=$(head -n1 "$STATE_FILE")
+            SERVER=$(tail -n1 "$STATE_FILE")
+            echo '{"status":"'"$STATUS"'","server":"'"$SERVER"'"}'
+        else
+            echo '{"status":"disconnected","server":null}'
+        fi
+        ;;
+        
+    *)
+        echo '{"error":"Unknown action"}'
+        exit 1
+        ;;
+esac
+

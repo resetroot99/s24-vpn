@@ -1,0 +1,31 @@
+#!/bin/sh
+# S24 WiFi Settings - Configure WiFi networks
+
+if [ "$REQUEST_METHOD" = "POST" ]; then
+    # Read POST data
+    read POST_DATA
+    
+    # Parse JSON (simple extraction)
+    SSID=$(echo "$POST_DATA" | sed 's/.*"ssid":"\([^"]*\)".*/\1/')
+    PASSWORD=$(echo "$POST_DATA" | sed 's/.*"password":"\([^"]*\)".*/\1/')
+    SECURITY=$(echo "$POST_DATA" | sed 's/.*"security":"\([^"]*\)".*/\1/')
+    
+    # Update UCI configuration
+    uci set wireless.@wifi-iface[0].ssid="$SSID"
+    uci set wireless.@wifi-iface[0].key="$PASSWORD"
+    uci set wireless.@wifi-iface[0].encryption="${SECURITY}psk"
+    uci commit wireless
+    
+    # Restart WiFi
+    wifi reload
+    
+    echo '{"success":true,"message":"WiFi settings updated"}'
+else
+    # GET - Return current settings
+    SSID=$(uci get wireless.@wifi-iface[0].ssid 2>/dev/null || echo "S24-WiFi")
+    SECURITY=$(uci get wireless.@wifi-iface[0].encryption 2>/dev/null | sed 's/psk$//' || echo "wpa2")
+    GUEST_SSID=$(uci get wireless.@wifi-iface[1].ssid 2>/dev/null || echo "S24-Guest")
+    
+    echo '{"ssid":"'"$SSID"'","security":"'"$SECURITY"'","guestSsid":"'"$GUEST_SSID"'"}'
+fi
+

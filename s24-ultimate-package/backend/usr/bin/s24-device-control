@@ -1,0 +1,23 @@
+#!/bin/sh
+# S24 Device Control - Block/unblock devices
+
+ACTION=$(echo "$QUERY_STRING" | sed 's/.*action=\([^&]*\).*/\1/')
+MAC=$(echo "$QUERY_STRING" | sed 's/.*mac=\([^&]*\).*/\1/')
+
+[ -z "$MAC" ] && echo '{"error":"MAC address required"}' && exit 1
+
+case "$ACTION" in
+    block)
+        iptables -I FORWARD -m mac --mac-source "$MAC" -j DROP 2>/dev/null
+        echo '{"success":true,"action":"blocked","mac":"'"$MAC"'"}'
+        ;;
+    unblock)
+        iptables -D FORWARD -m mac --mac-source "$MAC" -j DROP 2>/dev/null
+        echo '{"success":true,"action":"unblocked","mac":"'"$MAC"'"}'
+        ;;
+    *)
+        echo '{"error":"Unknown action"}'
+        exit 1
+        ;;
+esac
+

@@ -1,0 +1,2229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S24 Ultimate Security Router</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Courier New', monospace;
+            background: #0a0a0a;
+            color: #d0d0d0;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .container { display: flex; height: 100vh; }
+        
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: #1a1a1a;
+            border-right: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+        
+        .logo {
+            padding: 20px;
+            border-bottom: 1px solid #333;
+            font-size: 24px;
+            font-weight: bold;
+            color: #ff8c00;
+            text-align: center;
+            letter-spacing: 3px;
+        }
+        
+        .nav-menu { flex: 1; padding: 10px 0; }
+        
+        .nav-section {
+            margin-bottom: 5px;
+        }
+        
+        .nav-section-title {
+            padding: 10px 20px;
+            font-size: 11px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .nav-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            border-left: 3px solid transparent;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 13px;
+        }
+        
+        .nav-item:hover {
+            background: #222;
+            border-left-color: #ff8c00;
+        }
+        
+        .nav-item.active {
+            background: #252525;
+            border-left-color: #ff8c00;
+            color: #ff8c00;
+        }
+        
+        .nav-icon { width: 16px; }
+        
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        /* Header */
+        .header {
+            background: #1a1a1a;
+            border-bottom: 1px solid #333;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header-title {
+            font-size: 18px;
+            color: #ff8c00;
+        }
+        
+        .security-score {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 15px;
+            background: #00aa00;
+            color: #000;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .security-score.grade-b { background: #88cc00; }
+        .security-score.grade-c { background: #ffaa00; }
+        .security-score.grade-d { background: #ff6600; }
+        .security-score.grade-f { background: #ff0000; color: #fff; }
+        
+        /* Content Area */
+        .content-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 30px;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #333;
+        }
+        
+        .section-title {
+            font-size: 20px;
+            color: #ff8c00;
+            font-weight: bold;
+        }
+        
+        /* Cards */
+        .card {
+            background: #151515;
+            border: 1px solid #333;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .card-title {
+            font-size: 16px;
+            color: #ff8c00;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #333;
+        }
+        
+        /* Grid Layouts */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .feature-card {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .feature-card:hover {
+            border-color: #ff8c00;
+            background: #222;
+        }
+        
+        .feature-card.active {
+            border-color: #00ff00;
+            background: #1a2a1a;
+        }
+        
+        .feature-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        
+        .feature-name {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .feature-desc {
+            font-size: 11px;
+            color: #888;
+        }
+        
+        /* Toggle Switch */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #333;
+            transition: .3s;
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: #888;
+            transition: .3s;
+        }
+        
+        input:checked + .toggle-slider {
+            background-color: #ff8c00;
+        }
+        
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+            background-color: #fff;
+        }
+        
+        /* Buttons */
+        .btn {
+            background: #ff8c00;
+            border: none;
+            color: #0a0a0a;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+        
+        .btn:hover { background: #ffa500; }
+        
+        .btn-secondary {
+            background: #333;
+            color: #d0d0d0;
+        }
+        
+        .btn-secondary:hover { background: #444; }
+        
+        .btn-danger {
+            background: #cc0000;
+            color: #fff;
+        }
+        
+        .btn-danger:hover { background: #ff0000; }
+        
+        .btn-small { padding: 6px 12px; font-size: 11px; }
+        
+        /* Status Indicators */
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .status-indicator.online { background: #00ff00; }
+        .status-indicator.offline { background: #ff0000; }
+        .status-indicator.warning { background: #ffaa00; }
+        
+        /* Device List */
+        .device-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .device-item {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .device-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .device-icon { font-size: 24px; }
+        
+        .device-details {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+        
+        .device-name {
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .device-meta {
+            font-size: 11px;
+            color: #888;
+        }
+        
+        .device-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        /* QR Code Display */
+        .qr-display {
+            background: #fff;
+            padding: 20px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .qr-display canvas {
+            max-width: 200px;
+            height: auto;
+        }
+        
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            padding: 15px;
+        }
+        
+        .stat-label {
+            font-size: 11px;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+        
+        .stat-value {
+            font-size: 20px;
+            color: #d0d0d0;
+            font-weight: bold;
+        }
+        
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            color: #d0d0d0;
+            margin-bottom: 8px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+        
+        .form-input {
+            background: #0a0a0a;
+            border: 1px solid #333;
+            color: #d0d0d0;
+            padding: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            width: 100%;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #ff8c00;
+        }
+        
+        /* Hidden */
+        .hidden { display: none; }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1a1a1a; }
+        ::-webkit-scrollbar-thumb { background: #333; }
+        ::-webkit-scrollbar-thumb:hover { background: #444; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">S24</div>
+            <div class="nav-menu">
+                <div class="nav-section">
+                    <div class="nav-section-title">DASHBOARD</div>
+                    <div class="nav-item active" onclick="showSection('dashboard')">
+                        <div class="nav-icon">*</div>
+                        <div>Overview</div>
+                    </div>
+                    <div class="nav-item" onclick="showSection('security-score')">
+                        <div class="nav-icon">[S]</div>
+                        <div>Security Score</div>
+                    </div>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">SECURITY & PRIVACY</div>
+                    <div class="nav-item" onclick="showSection('vpn')">
+                        <div class="nav-icon">[V]</div>
+                        <div>VPN Control</div>
+                    </div>
+                    <div class="nav-item" onclick="showSection('kill-switch')">
+                        <div class="nav-icon">[K]</div>
+                        <div>Kill Switches</div>
+                    </div>
+                    <div class="nav-item" onclick="showSection('privacy-modes')">
+                        <div class="nav-icon">[P]</div>
+                        <div>Privacy Modes</div>
+                    </div>
+                    <div class="nav-item" onclick="showSection('dns-protection')">
+                        <div class="nav-icon">[D]</div>
+                        <div>DNS Protection</div>
+                    </div>
+                    <div class="nav-item" onclick="showSection('stealth-mode')">
+                        <div class="nav-icon">[H]</div>
+                        <div>Stealth Mode</div>
+                    </div>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">MONITORING</div>
+                    <div class="nav-item" onclick="showSection('devices')">
+                        <div class="nav-icon">[+]</div>
+                        <div>Connected Devices</div>
+                    </div>
+                    <div class="nav-item" onclick="showSection('bandwidth')">
+                        <div class="nav-icon">[B]</div>
+                        <div>Bandwidth Usage</div>
+                    </div>
+                    <div class="nav-item" onclick="showSection('alerts')">
+                        <div class="nav-icon">[!]</div>
+                        <div>Alerts & Logs</div>
+                    </div>
+                    <div class="nav-item" onclick="showSection('adblock')">
+                        <div class="nav-icon">[X]</div>
+                        <div>Ad Blocking</div>
+                    </div>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">CONTROLS</div>
+                    <div class="nav-item" onclick="showSection('parental')">
+                        <div class="nav-icon">[F]</div>
+                        <div>Parental Controls</div>
+                    </div>
+                    <div class="nav-item" onclick="showSection('guest-wifi')">
+                        <div class="nav-icon">[G]</div>
+                        <div>Guest WiFi</div>
+                    </div>
+                    <div class="nav-item" onclick="showSection('schedules')">
+                        <div class="nav-icon">[T]</div>
+                        <div>Scheduled Tasks</div>
+                    </div>
+                    <div class="nav-item" onclick="showSection('profiles')">
+                        <div class="nav-icon">[U]</div>
+                        <div>Profiles</div>
+                    </div>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">ADVANCED</div>
+                    <div class="nav-item" onclick="showSection('captive-portal')">
+                        <div class="nav-icon">[C]</div>
+                        <div>Captive Portal</div>
+                    </div>
+                    <div class="nav-item" onclick="showSection('honeytoken')">
+                        <div class="nav-icon">[H]</div>
+                        <div>Honeytoken</div>
+                    </div>
+                    <div class="nav-item" onclick="showSection('failover')">
+                        <div class="nav-icon">[R]</div>
+                        <div>VPN Failover</div>
+                    </div>
+                    <div class="nav-item" onclick="showSection('panic-button')">
+                        <div class="nav-icon">[!]</div>
+                        <div>Panic Button</div>
+                    </div>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">SYSTEM</div>
+                    <div class="nav-item" onclick="showSection('network')">
+                        <div class="nav-icon">[N]</div>
+                        <div>Network</div>
+                    </div>
+                    <div class="nav-item" onclick="showSection('wireless')">
+                        <div class="nav-icon">[W]</div>
+                        <div>Wireless</div>
+                    </div>
+                    <div class="nav-item" onclick="showSection('firewall')">
+                        <div class="nav-icon">[F]</div>
+                        <div>Firewall</div>
+                    </div>
+                    <div class="nav-item" onclick="showSection('system')">
+                        <div class="nav-icon">[S]</div>
+                        <div>System Settings</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <div class="header-title">S24 ULTIMATE SECURITY ROUTER</div>
+                <div class="security-score" id="security-score">
+                    SECURITY GRADE: A
+                </div>
+            </div>
+            
+            <div class="content-area">
+                <!-- Dashboard Section -->
+                <div id="section-dashboard">
+                    <div class="section-header">
+                        <div class="section-title">Dashboard Overview</div>
+                        <button class="btn btn-small" onclick="refreshAll()">Refresh All</button>
+                    </div>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-label">VPN Status</div>
+                            <div class="stat-value" id="vpn-status-display">
+                                <span class="status-indicator offline"></span>
+                                Disabled
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Kill Switch</div>
+                            <div class="stat-value" id="killswitch-status">
+                                <span class="status-indicator offline"></span>
+                                Disabled
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Connected Devices</div>
+                            <div class="stat-value" id="device-count">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Blocked Ads</div>
+                            <div class="stat-value" id="blocked-ads">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Bandwidth (24h)</div>
+                            <div class="stat-value" id="bandwidth-total">0 MB</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Active Profile</div>
+                            <div class="stat-value" id="active-profile">Home</div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">Quick Actions</div>
+                        <div class="feature-grid">
+                            <div class="feature-card" onclick="toggleVPN()">
+                                <div class="feature-icon">[V]</div>
+                                <div class="feature-name">Toggle VPN</div>
+                                <div class="feature-desc">Enable/disable VPN protection</div>
+                            </div>
+                            <div class="feature-card" onclick="toggleKillSwitch()">
+                                <div class="feature-icon">[K]</div>
+                                <div class="feature-name">Kill Switch</div>
+                                <div class="feature-desc">Block all traffic without VPN</div>
+                            </div>
+                            <div class="feature-card" onclick="showSection('privacy-modes')">
+                                <div class="feature-icon">[P]</div>
+                                <div class="feature-name">Privacy Mode</div>
+                                <div class="feature-desc">One-click privacy settings</div>
+                            </div>
+                            <div class="feature-card" onclick="activatePanicMode()">
+                                <div class="feature-icon">[!]</div>
+                                <div class="feature-name">Panic Button</div>
+                                <div class="feature-desc">Emergency privacy lockdown</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Security Score Section -->
+                <div id="section-security-score" class="hidden">
+                    <div class="section-header">
+                        <div class="section-title">Security Score</div>
+                        <button class="btn btn-small" onclick="calculateScore()">Recalculate</button>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">Your Security Grade: <span id="grade-display" style="color: #00ff00; font-size: 32px;">A</span></div>
+                        <div style="margin: 20px 0;">
+                            <div style="background: #222; height: 30px; position: relative;">
+                                <div id="score-bar" style="background: linear-gradient(90deg, #00ff00, #ffaa00, #ff0000); height: 100%; width: 95%;"></div>
+                                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-weight: bold;">95/100</div>
+                            </div>
+                        </div>
+                        
+                        <div class="device-list">
+                            <div class="device-item" style="border-left: 3px solid #00ff00;">
+                                <div class="device-info">
+                                    <div class="device-icon">[OK]</div>
+                                    <div class="device-details">
+                                        <div class="device-name">VPN Enabled</div>
+                                        <div class="device-meta">All traffic encrypted</div>
+                                    </div>
+                                </div>
+                                <div style="color: #00ff00;">+20 points</div>
+                            </div>
+                            
+                            <div class="device-item" style="border-left: 3px solid #00ff00;">
+                                <div class="device-info">
+                                    <div class="device-icon">[OK]</div>
+                                    <div class="device-details">
+                                        <div class="device-name">Kill Switch Active</div>
+                                        <div class="device-meta">No leaks possible</div>
+                                    </div>
+                                </div>
+                                <div style="color: #00ff00;">+20 points</div>
+                            </div>
+                            
+                            <div class="device-item" style="border-left: 3px solid #00ff00;">
+                                <div class="device-info">
+                                    <div class="device-icon">[OK]</div>
+                                    <div class="device-details">
+                                        <div class="device-name">DNS Protection Enabled</div>
+                                        <div class="device-meta">All DNS queries secured</div>
+                                    </div>
+                                </div>
+                                <div style="color: #00ff00;">+15 points</div>
+                            </div>
+                            
+                            <div class="device-item" style="border-left: 3px solid #00ff00;">
+                                <div class="device-info">
+                                    <div class="device-icon">[OK]</div>
+                                    <div class="device-details">
+                                        <div class="device-name">Ad Blocker Active</div>
+                                        <div class="device-meta">Tracking blocked</div>
+                                    </div>
+                                </div>
+                                <div style="color: #00ff00;">+15 points</div>
+                            </div>
+                            
+                            <div class="device-item" style="border-left: 3px solid #00ff00;">
+                                <div class="device-info">
+                                    <div class="device-icon">[OK]</div>
+                                    <div class="device-details">
+                                        <div class="device-name">Firewall Configured</div>
+                                        <div class="device-meta">Strong rules active</div>
+                                    </div>
+                                </div>
+                                <div style="color: #00ff00;">+15 points</div>
+                            </div>
+                            
+                            <div class="device-item" style="border-left: 3px solid #ffaa00;">
+                                <div class="device-info">
+                                    <div class="device-icon">[!]</div>
+                                    <div class="device-details">
+                                        <div class="device-name">Stealth Mode Off</div>
+                                        <div class="device-meta">Router is visible</div>
+                                    </div>
+                                </div>
+                                <div style="color: #ffaa00;">+10 points (max: 15)</div>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: 20px; padding: 15px; background: #1a2a1a; border: 1px solid #00ff00;">
+                            <strong style="color: #00ff00;">EXCELLENT SECURITY!</strong><br>
+                            <span style="font-size: 12px; color: #888;">Your router is well protected. Enable Stealth Mode for perfect score.</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- VPN Control Section -->
+                <div id="section-vpn" class="hidden">
+                    <div class="section-header">
+                        <div class="section-title">VPN Control</div>
+                        <button class="btn btn-small" onclick="refreshVPN()">Refresh</button>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">VPN Connection</div>
+                        <div class="form-group">
+                            <div class="form-label">VPN Status</div>
+                            <div style="display: flex; align-items: center; gap: 15px;">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="vpn-toggle" onchange="toggleVPN()">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                <span id="vpn-toggle-text">Disabled</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">Server Selection (Identity Switch)</div>
+                        <div class="feature-grid">
+                            <div class="feature-card" onclick="selectVPNServer('nl1', this)">
+                                <div class="feature-icon">[NL]</div>
+                                <div class="feature-name">Netherlands</div>
+                                <div class="feature-desc">Amsterdam</div>
+                            </div>
+                            <div class="feature-card" onclick="selectVPNServer('ca3', this)">
+                                <div class="feature-icon">[CA]</div>
+                                <div class="feature-name">Canada</div>
+                                <div class="feature-desc">Toronto</div>
+                            </div>
+                            <div class="feature-card" onclick="selectVPNServer('us1', this)">
+                                <div class="feature-icon">[US]</div>
+                                <div class="feature-name">USA</div>
+                                <div class="feature-desc">New York</div>
+                            </div>
+                            <div class="feature-card" onclick="selectVPNServer('th1', this)">
+                                <div class="feature-icon">[TH]</div>
+                                <div class="feature-name">Thailand</div>
+                                <div class="feature-desc">Bangkok</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Kill Switch Section -->
+                <div id="section-kill-switch" class="hidden">
+                    <div class="section-header">
+                        <div class="section-title">Kill Switches</div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">Global Kill Switch</div>
+                        <p style="color: #888; margin-bottom: 15px;">Block all internet traffic when VPN is disconnected</p>
+                        <div class="form-group">
+                            <div style="display: flex; align-items: center; gap: 15px;">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="global-killswitch" onchange="toggleGlobalKillSwitch()">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                <span id="global-killswitch-text">Disabled</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">Per-Device Kill Switch (Pause Internet)</div>
+                        <p style="color: #888; margin-bottom: 15px;">Block specific devices from accessing internet</p>
+                        <div class="device-list" id="device-killswitch-list">
+                            <div class="device-item">
+                                <div class="device-info">
+                                    <div class="device-icon">[DEV]</div>
+                                    <div class="device-details">
+                                        <div class="device-name">iPhone</div>
+                                        <div class="device-meta">192.168.8.100 | Online</div>
+                                    </div>
+                                </div>
+                                <div class="device-actions">
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" onchange="toggleDeviceKillSwitch('192.168.8.100')">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Privacy Modes Section -->
+                <div id="section-privacy-modes" class="hidden">
+                    <div class="section-header">
+                        <div class="section-title">One-Touch Privacy Modes</div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">Quick Profiles</div>
+                        <div class="feature-grid">
+                            <div class="feature-card" onclick="activatePrivacyMode('home')">
+                                <div class="feature-icon">[HOME]</div>
+                                <div class="feature-name">Home Mode</div>
+                                <div class="feature-desc">VPN off + adblock on</div>
+                            </div>
+                            <div class="feature-card" onclick="activatePrivacyMode('travel')">
+                                <div class="feature-icon">[TRVL]</div>
+                                <div class="feature-name">Travel Mode</div>
+                                <div class="feature-desc">VPN on + kill switch + stealth</div>
+                            </div>
+                            <div class="feature-card" onclick="activatePrivacyMode('coffee')">
+                                <div class="feature-icon">[CAFE]</div>
+                                <div class="feature-name">Coffee Shop Mode</div>
+                                <div class="feature-desc">VPN only, SSID hidden</div>
+                            </div>
+                            <div class="feature-card" onclick="activatePrivacyMode('work')">
+                                <div class="feature-icon">[WORK]</div>
+                                <div class="feature-name">Work Mode</div>
+                                <div class="feature-desc">Standard security settings</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- DNS Protection Section -->
+                <div id="section-dns-protection" class="hidden">
+                    <div class="section-header">
+                        <div class="section-title">DNS Leak Protection</div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">DNS Configuration</div>
+                        <p style="color: #888; margin-bottom: 20px;">Force all DNS queries through router to prevent DNS leaks</p>
+                        
+                        <div class="form-group">
+                            <div class="form-label">DNS Protection Status</div>
+                            <div style="display: flex; align-items: center; gap: 15px;">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="dns-protection-toggle" checked onchange="toggleDNSProtection()">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                <span>Enabled - All DNS queries secured</span>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="form-label">Primary DNS Server</div>
+                            <input type="text" class="form-input" value="1.1.1.1" placeholder="Primary DNS">
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="form-label">Secondary DNS Server</div>
+                            <input type="text" class="form-input" value="1.0.0.1" placeholder="Secondary DNS">
+                        </div>
+                        
+                        <button class="btn" onclick="applyDNSSettings()">Apply Settings</button>
+                    </div>
+                </div>
+                
+                <!-- Stealth Mode Section -->
+                <div id="section-stealth-mode" class="hidden">
+                    <div class="section-header">
+                        <div class="section-title">Stealth Mode</div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">Router Invisibility Settings</div>
+                        <p style="color: #888; margin-bottom: 20px;">Make your router invisible on networks</p>
+                        
+                        <div class="device-list">
+                            <div class="device-item">
+                                <div class="device-info">
+                                    <div class="device-icon">[H]</div>
+                                    <div class="device-details">
+                                        <div class="device-name">SSID Broadcast</div>
+                                        <div class="device-meta">Hide network name</div>
+                                    </div>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="hide-ssid">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            
+                            <div class="device-item">
+                                <div class="device-info">
+                                    <div class="device-icon">[P]</div>
+                                    <div class="device-details">
+                                        <div class="device-name">ICMP Ping</div>
+                                        <div class="device-meta">Block ping responses</div>
+                                    </div>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="block-icmp">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            
+                            <div class="device-item">
+                                <div class="device-info">
+                                    <div class="device-icon">[U]</div>
+                                    <div class="device-details">
+                                        <div class="device-name">UPnP</div>
+                                        <div class="device-meta">Disable Universal Plug and Play</div>
+                                    </div>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="disable-upnp">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            
+                            <div class="device-item">
+                                <div class="device-info">
+                                    <div class="device-icon">[N]</div>
+                                    <div class="device-details">
+                                        <div class="device-name">NetBIOS</div>
+                                        <div class="device-meta">Disable NetBIOS broadcasts</div>
+                                    </div>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="disable-netbios">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: 20px;">
+                            <button class="btn" onclick="activateFullStealth()">Activate Full Stealth</button>
+                            <button class="btn btn-secondary" onclick="deactivateStealth()">Deactivate</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Connected Devices Section -->
+                <div id="section-devices" class="hidden">
+                    <div class="section-header">
+                        <div class="section-title">Connected Devices</div>
+                        <button class="btn btn-small" onclick="scanDevices()">Scan Now</button>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">Active Devices (3)</div>
+                        <div class="device-list" id="active-devices-list">
+                            <div class="device-item">
+                                <div class="device-info">
+                                    <div class="device-icon">[DEV]</div>
+                                    <div class="device-details">
+                                        <div class="device-name">MacBook Pro</div>
+                                        <div class="device-meta">192.168.8.50 | MAC: 00:1B:44:11:3A:B7 | Connected 2h ago</div>
+                                    </div>
+                                </div>
+                                <div class="device-actions">
+                                    <button class="btn btn-small btn-danger" onclick="blockDevice('192.168.8.50')">Block</button>
+                                </div>
+                            </div>
+                            
+                            <div class="device-item">
+                                <div class="device-info">
+                                    <div class="device-icon">[DEV]</div>
+                                    <div class="device-details">
+                                        <div class="device-name">iPhone 12</div>
+                                        <div class="device-meta">192.168.8.100 | MAC: 00:1B:44:11:3A:C8 | Connected 5m ago</div>
+                                    </div>
+                                </div>
+                                <div class="device-actions">
+                                    <button class="btn btn-small btn-danger" onclick="blockDevice('192.168.8.100')">Block</button>
+                                </div>
+                            </div>
+                            
+                            <div class="device-item">
+                                <div class="device-info">
+                                    <div class="device-icon">[DEV]</div>
+                                    <div class="device-details">
+                                        <div class="device-name">Samsung Galaxy</div>
+                                        <div class="device-meta">192.168.8.101 | MAC: 00:1B:44:11:3A:D9 | Connected 1h ago</div>
+                                    </div>
+                                </div>
+                                <div class="device-actions">
+                                    <button class="btn btn-small btn-danger" onclick="blockDevice('192.168.8.101')">Block</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">Device Alerts</div>
+                        <div class="form-group">
+                            <div class="form-label">New Device Alert</div>
+                            <div style="display: flex; align-items: center; gap: 15px;">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="device-alert-toggle" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                <span>Notify when new device connects</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Bandwidth Usage Section -->
+                <div id="section-bandwidth" class="hidden">
+                    <div class="section-header">
+                        <div class="section-title">Bandwidth Usage</div>
+                        <button class="btn btn-small" onclick="refreshBandwidth()">Refresh</button>
+                    </div>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-label">Today</div>
+                            <div class="stat-value">2.4 GB</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">This Week</div>
+                            <div class="stat-value">15.8 GB</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">This Month</div>
+                            <div class="stat-value">67.2 GB</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Current Speed</div>
+                            <div class="stat-value">12.5 Mbps</div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">Per-Device Usage</div>
+                        <div class="device-list">
+                            <div class="device-item">
+                                <div class="device-info">
+                                    <div class="device-icon">[DEV]</div>
+                                    <div class="device-details">
+                                        <div class="device-name">MacBook Pro</div>
+                                        <div class="device-meta">192.168.8.50</div>
+                                    </div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="font-weight: bold;">1.2 GB</div>
+                                    <div style="font-size: 11px; color: #888;">Today</div>
+                                </div>
+                            </div>
+                            
+                            <div class="device-item">
+                                <div class="device-info">
+                                    <div class="device-icon">[DEV]</div>
+                                    <div class="device-details">
+                                        <div class="device-name">iPhone 12</div>
+                                        <div class="device-meta">192.168.8.100</div>
+                                    </div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="font-weight: bold;">850 MB</div>
+                                    <div style="font-size: 11px; color: #888;">Today</div>
+                                </div>
+                            </div>
+                            
+                            <div class="device-item">
+                                <div class="device-info">
+                                    <div class="device-icon">[DEV]</div>
+                                    <div class="device-details">
+                                        <div class="device-name">Samsung Galaxy</div>
+                                        <div class="device-meta">192.168.8.101</div>
+                                    </div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="font-weight: bold;">350 MB</div>
+                                    <div style="font-size: 11px; color: #888;">Today</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Alerts & Logs Section -->
+                <div id="section-alerts" class="hidden">
+                    <div class="section-header">
+                        <div class="section-title">Alerts & Security Logs</div>
+                        <button class="btn btn-small" onclick="clearLogs()">Clear Logs</button>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">Recent Alerts</div>
+                        <div class="device-list">
+                            <div class="device-item" style="border-left: 3px solid #00ff00;">
+                                <div class="device-info">
+                                    <div class="device-icon">[OK]</div>
+                                    <div class="device-details">
+                                        <div class="device-name">VPN Connected</div>
+                                        <div class="device-meta">2024-01-15 14:30:22 | Netherlands server</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="device-item" style="border-left: 3px solid #ffaa00;">
+                                <div class="device-info">
+                                    <div class="device-icon">[!]</div>
+                                    <div class="device-details">
+                                        <div class="device-name">New Device Connected</div>
+                                        <div class="device-meta">2024-01-15 12:15:10 | Unknown device at 192.168.8.105</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="device-item" style="border-left: 3px solid #ff0000;">
+                                <div class="device-info">
+                                    <div class="device-icon">[X]</div>
+                                    <div class="device-details">
+                                        <div class="device-name">Kill Switch Triggered</div>
+                                        <div class="device-meta">2024-01-15 10:45:33 | VPN connection lost</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">Security Events</div>
+                        <div class="device-list">
+                            <div class="device-item">
+                                <div class="device-info">
+                                    <div class="device-icon">[L]</div>
+                                    <div class="device-details">
+                                        <div class="device-name">Login Attempt</div>
+                                        <div class="device-meta">2024-01-15 09:20:15 | Admin login successful</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Ad Blocking Section -->
+                <div id="section-adblock" class="hidden">
+                    <div class="section-header">
+                        <div class="section-title">Ad & Tracker Blocking</div>
+                    </div>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-label">Blocked Today</div>
+                            <div class="stat-value">1,247</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Blocked This Week</div>
+                            <div class="stat-value">8,932</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Active Blocklists</div>
+                            <div class="stat-value">3</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Total Domains</div>
+                            <div class="stat-value">95,420</div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">Ad Blocker Control</div>
+                        <div class="form-group">
+                            <div class="form-label">Ad Blocking Status</div>
+                            <div style="display: flex; align-items: center; gap: 15px;">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="adblock-toggle" checked onchange="toggleAdBlock()">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                <span>Enabled - Blocking ads and trackers</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">Blocklists</div>
+                        <div class="device-list">
+                            <div class="device-item">
+                                <div class="device-info">
+                                    <div class="device-icon">[L]</div>
+                                    <div class="device-details">
+                                        <div class="device-name">AdGuard DNS Filter</div>
+                                        <div class="device-meta">45,230 domains</div>
+                                    </div>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            
+                            <div class="device-item">
+                                <div class="device-info">
+                                    <div class="device-icon">[L]</div>
+                                    <div class="device-details">
+                                        <div class="device-name">EasyList</div>
+                                        <div class="device-meta">32,890 domains</div>
+                                    </div>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            
+                            <div class="device-item">
+                                <div class="device-info">
+                                    <div class="device-icon">[L]</div>
+                                    <div class="device-details">
+                                        <div class="device-name">Tracking Protection</div>
+                                        <div class="device-meta">17,300 domains</div>
+                                    </div>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Parental Controls Section -->
+                <div id="section-parental" class="hidden">
+                    <div class="section-header">
+                        <div class="section-title">Parental Controls</div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">Time-Based Restrictions</div>
+                        <div class="form-group">
+                            <div class="form-label">Device</div>
+                            <input type="text" class="form-input" placeholder="MAC address or Device Name">
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="form-label">Block Schedule</div>
+                            <input type="text" class="form-input" value="22:00-07:00" placeholder="HH:MM-HH:MM">
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="form-label">Days</div>
+                            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                                <button class="btn btn-small">Mon</button>
+                                <button class="btn btn-small">Tue</button>
+                                <button class="btn btn-small">Wed</button>
+                                <button class="btn btn-small">Thu</button>
+                                <button class="btn btn-small">Fri</button>
+                                <button class="btn btn-small btn-secondary">Sat</button>
+                                <button class="btn btn-small btn-secondary">Sun</button>
+                            </div>
+                        </div>
+                        
+                        <button class="btn" onclick="addRestriction()">Add Restriction</button>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">Domain Blocking</div>
+                        <div class="form-group">
+                            <div class="form-label">Block Domain</div>
+                            <input type="text" class="form-input" placeholder="example.com">
+                        </div>
+                        <button class="btn" onclick="blockDomain()">Add to Blocklist</button>
+                        
+                        <div style="margin-top: 20px;">
+                            <div class="form-label">Blocked Domains (2)</div>
+                            <div class="device-list">
+                                <div class="device-item">
+                                    <div class="device-info">
+                                        <div class="device-icon">[X]</div>
+                                        <div class="device-details">
+                                            <div class="device-name">facebook.com</div>
+                                        </div>
+                                    </div>
+                                    <button class="btn btn-small btn-danger" onclick="unblockDomain('facebook.com')">Remove</button>
+                                </div>
+                                
+                                <div class="device-item">
+                                    <div class="device-info">
+                                        <div class="device-icon">[X]</div>
+                                        <div class="device-details">
+                                            <div class="device-name">tiktok.com</div>
+                                        </div>
+                                    </div>
+                                    <button class="btn btn-small btn-danger" onclick="unblockDomain('tiktok.com')">Remove</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Guest WiFi Section -->
+                <div id="section-guest-wifi" class="hidden">
+                    <div class="section-header">
+                        <div class="section-title">Guest WiFi</div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">Guest Network Settings</div>
+                        
+                        <div class="form-group">
+                            <div class="form-label">Guest WiFi Status</div>
+                            <div style="display: flex; align-items: center; gap: 15px;">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="guest-wifi-toggle" onchange="toggleGuestWiFi()">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                <span>Disabled</span>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="form-label">Network Name (SSID)</div>
+                            <input type="text" class="form-input" value="S24-Guest" placeholder="Guest Network Name">
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="form-label">Password</div>
+                            <input type="text" class="form-input" value="Guest2024" placeholder="Network Password">
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="form-label">Auto-Expire</div>
+                            <select class="form-input">
+                                <option>Never</option>
+                                <option>1 hour</option>
+                                <option>4 hours</option>
+                                <option>24 hours</option>
+                                <option>7 days</option>
+                            </select>
+                        </div>
+                        
+                        <button class="btn" onclick="generateGuestQR()">Generate QR Code</button>
+                        <button class="btn btn-secondary" onclick="applyGuestSettings()">Apply Settings</button>
+                    </div>
+                    
+                    <div class="card hidden" id="qr-code-card">
+                        <div class="card-title">Guest WiFi QR Code</div>
+                        <div class="qr-display">
+                            <div id="qr-code-display" style="text-align: center; padding: 40px; background: #fff; color: #000;">
+                                [QR CODE PLACEHOLDER]
+                            </div>
+                            <p style="margin-top: 15px; color: #888;">Scan with phone to connect</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Scheduled Tasks Section -->
+                <div id="section-schedules" class="hidden">
+                    <div class="section-header">
+                        <div class="section-title">Scheduled Tasks</div>
+                        <button class="btn btn-small" onclick="addSchedule()">Add Schedule</button>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">Active Schedules (3)</div>
+                        <div class="device-list">
+                            <div class="device-item">
+                                <div class="device-info">
+                                    <div class="device-icon">[T]</div>
+                                    <div class="device-details">
+                                        <div class="device-name">Enable Travel Mode</div>
+                                        <div class="device-meta">Mon-Fri at 08:00</div>
+                                    </div>
+                                </div>
+                                <div class="device-actions">
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                    <button class="btn btn-small btn-danger">Delete</button>
+                                </div>
+                            </div>
+                            
+                            <div class="device-item">
+                                <div class="device-info">
+                                    <div class="device-icon">[T]</div>
+                                    <div class="device-details">
+                                        <div class="device-name">Enable Home Mode</div>
+                                        <div class="device-meta">Mon-Fri at 18:00</div>
+                                    </div>
+                                </div>
+                                <div class="device-actions">
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                    <button class="btn btn-small btn-danger">Delete</button>
+                                </div>
+                            </div>
+                            
+                            <div class="device-item">
+                                <div class="device-info">
+                                    <div class="device-icon">[T]</div>
+                                    <div class="device-details">
+                                        <div class="device-name">Disable Guest WiFi</div>
+                                        <div class="device-meta">Daily at 23:00</div>
+                                    </div>
+                                </div>
+                                <div class="device-actions">
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                    <button class="btn btn-small btn-danger">Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Profiles Section -->
+                <div id="section-profiles" class="hidden">
+                    <div class="section-header">
+                        <div class="section-title">Profile Management</div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">Switch Profile</div>
+                        <div class="feature-grid">
+                            <div class="feature-card active" onclick="switchProfile('default')">
+                                <div class="feature-icon">[DEF]</div>
+                                <div class="feature-name">Default</div>
+                                <div class="feature-desc">Standard settings</div>
+                            </div>
+                            
+                            <div class="feature-card" onclick="switchProfile('secure')">
+                                <div class="feature-icon">[SEC]</div>
+                                <div class="feature-name">Maximum Security</div>
+                                <div class="feature-desc">VPN + Kill Switch + Adblock</div>
+                            </div>
+                            
+                            <div class="feature-card" onclick="switchProfile('family')">
+                                <div class="feature-icon">[FAM]</div>
+                                <div class="feature-name">Family Safe</div>
+                                <div class="feature-desc">Parental controls active</div>
+                            </div>
+                            
+                            <div class="feature-card" onclick="switchProfile('guest')">
+                                <div class="feature-icon">[GST]</div>
+                                <div class="feature-name">Guest Network</div>
+                                <div class="feature-desc">Guest WiFi enabled</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">Current Profile: Default</div>
+                        <p style="color: #888;">Active since 2 hours ago</p>
+                    </div>
+                </div>
+                
+                <!-- Captive Portal Section -->
+                <div id="section-captive-portal" class="hidden">
+                    <div class="section-header">
+                        <div class="section-title">Captive Portal</div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">Captive Portal Configuration</div>
+                        
+                        <div class="form-group">
+                            <div class="form-label">Captive Portal Status</div>
+                            <div style="display: flex; align-items: center; gap: 15px;">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="captive-portal-toggle" onchange="toggleCaptivePortal()">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                <span>Disabled</span>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="form-label">Portal Title</div>
+                            <input type="text" class="form-input" value="Welcome to S24 Network" placeholder="Portal Title">
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="form-label">Welcome Message</div>
+                            <textarea class="form-input" rows="4" placeholder="Enter welcome message">Please accept our terms of service to continue.</textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="form-label">Require Authentication</div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="portal-auth">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        
+                        <button class="btn" onclick="applyCaptiveSettings()">Apply Settings</button>
+                    </div>
+                </div>
+                
+                <!-- Honeytoken Section -->
+                <div id="section-honeytoken" class="hidden">
+                    <div class="section-header">
+                        <div class="section-title">Honeytoken Canary</div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">Intrusion Detection</div>
+                        <p style="color: #888; margin-bottom: 20px;">Set up fake services to detect network intrusions</p>
+                        
+                        <div class="form-group">
+                            <div class="form-label">Honeytoken Status</div>
+                            <div style="display: flex; align-items: center; gap: 15px;">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="honeytoken-toggle" onchange="toggleHoneytoken()">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                <span>Disabled</span>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="form-label">Fake Service Type</div>
+                            <select class="form-input">
+                                <option>SMB Share</option>
+                                <option>FTP Server</option>
+                                <option>SSH Service</option>
+                                <option>HTTP Server</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="form-label">Alert Method</div>
+                            <select class="form-input">
+                                <option>Log Only</option>
+                                <option>Email Alert</option>
+                                <option>Webhook</option>
+                            </select>
+                        </div>
+                        
+                        <button class="btn" onclick="deployHoneytoken()">Deploy Honeytoken</button>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">Detection Log</div>
+                        <p style="color: #888;">No intrusion attempts detected</p>
+                    </div>
+                </div>
+                
+                <!-- VPN Failover Section -->
+                <div id="section-failover" class="hidden">
+                    <div class="section-header">
+                        <div class="section-title">VPN Auto-Failover</div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">Failover Configuration</div>
+                        
+                        <div class="form-group">
+                            <div class="form-label">Auto-Failover Status</div>
+                            <div style="display: flex; align-items: center; gap: 15px;">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="failover-toggle" checked onchange="toggleFailover()">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                <span>Enabled</span>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="form-label">Check Interval</div>
+                            <select class="form-input">
+                                <option>30 seconds</option>
+                                <option selected>60 seconds</option>
+                                <option>5 minutes</option>
+                                <option>10 minutes</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="form-label">Failover Action</div>
+                            <select class="form-input">
+                                <option selected>Switch to next server</option>
+                                <option>Enable kill switch</option>
+                                <option>Disable VPN</option>
+                            </select>
+                        </div>
+                        
+                        <button class="btn" onclick="testFailover()">Test Failover</button>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">Server Priority Order</div>
+                        <div class="device-list">
+                            <div class="device-item">
+                                <div class="device-info">
+                                    <div class="device-icon">[1]</div>
+                                    <div class="device-details">
+                                        <div class="device-name">Netherlands (Primary)</div>
+                                        <div class="device-meta">Status: Online</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="device-item">
+                                <div class="device-info">
+                                    <div class="device-icon">[2]</div>
+                                    <div class="device-details">
+                                        <div class="device-name">Canada (Backup)</div>
+                                        <div class="device-meta">Status: Online</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="device-item">
+                                <div class="device-info">
+                                    <div class="device-icon">[3]</div>
+                                    <div class="device-details">
+                                        <div class="device-name">USA (Backup)</div>
+                                        <div class="device-meta">Status: Online</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="device-item">
+                                <div class="device-info">
+                                    <div class="device-icon">[4]</div>
+                                    <div class="device-details">
+                                        <div class="device-name">Thailand (Backup)</div>
+                                        <div class="device-meta">Status: Online</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Panic Button Section -->
+                <div id="section-panic-button" class="hidden">
+                    <div class="section-header">
+                        <div class="section-title">Emergency Panic Button</div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">Emergency Privacy Lockdown</div>
+                        <p style="color: #ff0000; margin-bottom: 20px;">WARNING: This will immediately enable all privacy features and may interrupt internet connectivity</p>
+                        
+                        <div style="padding: 30px; text-align: center; background: #1a0a0a; border: 2px solid #ff0000; margin: 20px 0;">
+                            <button class="btn btn-danger" style="font-size: 24px; padding: 30px 60px;" onclick="activatePanicMode()">
+                                ACTIVATE PANIC MODE
+                            </button>
+                        </div>
+                        
+                        <div class="card-title" style="margin-top: 30px;">What Panic Mode Does:</div>
+                        <div class="device-list">
+                            <div class="device-item">
+                                <div class="device-info">
+                                    <div class="device-icon">[V]</div>
+                                    <div class="device-details">
+                                        <div class="device-name">Enable VPN</div>
+                                        <div class="device-meta">Immediately connect to fastest server</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="device-item">
+                                <div class="device-info">
+                                    <div class="device-icon">[K]</div>
+                                    <div class="device-details">
+                                        <div class="device-name">Activate Kill Switch</div>
+                                        <div class="device-meta">Block all non-VPN traffic</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="device-item">
+                                <div class="device-info">
+                                    <div class="device-icon">[H]</div>
+                                    <div class="device-details">
+                                        <div class="device-name">Enable Stealth Mode</div>
+                                        <div class="device-meta">Hide router from network</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="device-item">
+                                <div class="device-info">
+                                    <div class="device-icon">[D]</div>
+                                    <div class="device-details">
+                                        <div class="device-name">DNS Protection</div>
+                                        <div class="device-meta">Secure all DNS queries</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Network Section -->
+                <div id="section-network" class="hidden">
+                    <div class="section-header">
+                        <div class="section-title">Network Configuration</div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">WAN Settings</div>
+                        <div class="form-group">
+                            <div class="form-label">Connection Type</div>
+                            <select class="form-input">
+                                <option selected>DHCP (Automatic)</option>
+                                <option>Static IP</option>
+                                <option>PPPoE</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="form-label">WAN IP Address</div>
+                            <input type="text" class="form-input" value="10.0.1.100" readonly>
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="form-label">Gateway</div>
+                            <input type="text" class="form-input" value="10.0.1.1" readonly>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">LAN Settings</div>
+                        <div class="form-group">
+                            <div class="form-label">Router IP Address</div>
+                            <input type="text" class="form-input" value="192.168.8.1">
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="form-label">Subnet Mask</div>
+                            <input type="text" class="form-input" value="255.255.255.0">
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="form-label">DHCP Range</div>
+                            <div style="display: flex; gap: 10px;">
+                                <input type="text" class="form-input" value="192.168.8.100" placeholder="Start">
+                                <input type="text" class="form-input" value="192.168.8.200" placeholder="End">
+                            </div>
+                        </div>
+                        
+                        <button class="btn" onclick="applyNetworkSettings()">Apply Settings</button>
+                    </div>
+                </div>
+                
+                <!-- Wireless Section -->
+                <div id="section-wireless" class="hidden">
+                    <div class="section-header">
+                        <div class="section-title">Wireless Configuration</div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">2.4GHz Settings</div>
+                        
+                        <div class="form-group">
+                            <div class="form-label">2.4GHz Status</div>
+                            <div style="display: flex; align-items: center; gap: 15px;">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                <span>Enabled</span>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="form-label">Network Name (SSID)</div>
+                            <input type="text" class="form-input" value="S24-WiFi" placeholder="Network Name">
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="form-label">Password</div>
+                            <input type="password" class="form-input" value="********" placeholder="WiFi Password">
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="form-label">Channel</div>
+                            <select class="form-input">
+                                <option>Auto</option>
+                                <option>1</option>
+                                <option>6</option>
+                                <option selected>11</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="form-label">Transmission Power</div>
+                            <select class="form-input">
+                                <option>Low</option>
+                                <option>Medium</option>
+                                <option selected>High</option>
+                                <option>Maximum</option>
+                            </select>
+                        </div>
+                        
+                        <button class="btn" onclick="applyWiFiSettings()">Apply Settings</button>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">5GHz Settings</div>
+                        
+                        <div class="form-group">
+                            <div class="form-label">5GHz Status</div>
+                            <div style="display: flex; align-items: center; gap: 15px;">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                <span>Enabled</span>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="form-label">Network Name (SSID)</div>
+                            <input type="text" class="form-input" value="S24-WiFi-5G" placeholder="Network Name">
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="form-label">Password</div>
+                            <input type="password" class="form-input" value="********" placeholder="WiFi Password">
+                        </div>
+                        
+                        <button class="btn" onclick="apply5GSettings()">Apply Settings</button>
+                    </div>
+                </div>
+                
+                <!-- Firewall Section -->
+                <div id="section-firewall" class="hidden">
+                    <div class="section-header">
+                        <div class="section-title">Firewall Rules</div>
+                        <button class="btn btn-small" onclick="addFirewallRule()">Add Rule</button>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">Firewall Status</div>
+                        <div class="form-group">
+                            <div style="display: flex; align-items: center; gap: 15px;">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                <span>Enabled - All rules active</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">Active Rules (5)</div>
+                        <div class="device-list">
+                            <div class="device-item">
+                                <div class="device-info">
+                                    <div class="device-icon">[R]</div>
+                                    <div class="device-details">
+                                        <div class="device-name">Allow SSH</div>
+                                        <div class="device-meta">Port 22 | TCP | LAN only</div>
+                                    </div>
+                                </div>
+                                <div class="device-actions">
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                    <button class="btn btn-small btn-danger">Delete</button>
+                                </div>
+                            </div>
+                            
+                            <div class="device-item">
+                                <div class="device-info">
+                                    <div class="device-icon">[R]</div>
+                                    <div class="device-details">
+                                        <div class="device-name">Allow HTTP/HTTPS</div>
+                                        <div class="device-meta">Port 80, 443 | TCP | All</div>
+                                    </div>
+                                </div>
+                                <div class="device-actions">
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                    <button class="btn btn-small btn-danger">Delete</button>
+                                </div>
+                            </div>
+                            
+                            <div class="device-item">
+                                <div class="device-info">
+                                    <div class="device-icon">[R]</div>
+                                    <div class="device-details">
+                                        <div class="device-name">Block Telnet</div>
+                                        <div class="device-meta">Port 23 | TCP | All</div>
+                                    </div>
+                                </div>
+                                <div class="device-actions">
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                    <button class="btn btn-small btn-danger">Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">Port Forwarding</div>
+                        <p style="color: #888;">No port forwarding rules configured</p>
+                        <button class="btn btn-secondary" onclick="addPortForward()">Add Port Forward</button>
+                    </div>
+                </div>
+                
+                <!-- System Settings Section -->
+                <div id="section-system" class="hidden">
+                    <div class="section-header">
+                        <div class="section-title">System Settings</div>
+                    </div>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-label">Uptime</div>
+                            <div class="stat-value">3d 14h 22m</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">CPU Usage</div>
+                            <div class="stat-value">25%</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Memory Usage</div>
+                            <div class="stat-value">45%</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Firmware</div>
+                            <div class="stat-value" style="font-size: 14px;">v4.3.7</div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">Administration</div>
+                        
+                        <div class="form-group">
+                            <div class="form-label">Admin Password</div>
+                            <input type="password" class="form-input" placeholder="Current Password">
+                            <input type="password" class="form-input" placeholder="New Password" style="margin-top: 10px;">
+                            <input type="password" class="form-input" placeholder="Confirm Password" style="margin-top: 10px;">
+                        </div>
+                        
+                        <button class="btn" onclick="changePassword()">Change Password</button>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">System Actions</div>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <button class="btn btn-secondary" onclick="rebootRouter()">Reboot Router</button>
+                            <button class="btn btn-danger" onclick="factoryReset()">Factory Reset</button>
+                            <button class="btn" onclick="backupSettings()">Backup Settings</button>
+                            <button class="btn" onclick="restoreSettings()">Restore Settings</button>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">Firmware Update</div>
+                        <p style="color: #888; margin-bottom: 15px;">Current version: 4.3.7</p>
+                        <button class="btn" onclick="checkUpdates()">Check for Updates</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Global state
+        let vpnEnabled = false;
+        let killSwitchEnabled = false;
+        let selectedServer = null;
+        let activeMode = 'home';
+        
+        // Show section
+        function showSection(section) {
+            document.querySelectorAll('.content-area > div[id^="section-"]').forEach(el => {
+                el.classList.add('hidden');
+            });
+            document.getElementById('section-' + section).classList.remove('hidden');
+            
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+        }
+        
+        // VPN functions
+        function toggleVPN() {
+            vpnEnabled = document.getElementById('vpn-toggle').checked;
+            document.getElementById('vpn-toggle-text').textContent = vpnEnabled ? 'Connected' : 'Disabled';
+            updateDashboard();
+        }
+        
+        function selectVPNServer(server, element) {
+            document.querySelectorAll('.feature-card').forEach(card => card.classList.remove('active'));
+            element.classList.add('active');
+            selectedServer = server;
+        }
+        
+        // Kill switch functions
+        function toggleGlobalKillSwitch() {
+            killSwitchEnabled = document.getElementById('global-killswitch').checked;
+            document.getElementById('global-killswitch-text').textContent = killSwitchEnabled ? 'Active' : 'Disabled';
+            updateDashboard();
+        }
+        
+        function toggleKillSwitch() {
+            killSwitchEnabled = !killSwitchEnabled;
+            updateDashboard();
+        }
+        
+        function toggleDeviceKillSwitch(ip) {
+            alert('Device ' + ip + ' internet paused');
+        }
+        
+        // Privacy modes
+        function activatePrivacyMode(mode) {
+            activeMode = mode;
+            alert('Activated ' + mode + ' mode');
+            updateDashboard();
+        }
+        
+        function activatePanicMode() {
+            if (confirm('Activate emergency privacy lockdown?')) {
+                vpnEnabled = true;
+                killSwitchEnabled = true;
+                alert('PANIC MODE ACTIVATED - All privacy features enabled');
+                updateDashboard();
+            }
+        }
+        
+        // Update dashboard
+        function updateDashboard() {
+            const vpnStatus = document.getElementById('vpn-status-display');
+            if (vpnStatus) {
+                vpnStatus.innerHTML = vpnEnabled ? 
+                    '<span class="status-indicator online"></span>Connected' : 
+                    '<span class="status-indicator offline"></span>Disabled';
+            }
+            
+            const ksStatus = document.getElementById('killswitch-status');
+            if (ksStatus) {
+                ksStatus.innerHTML = killSwitchEnabled ? 
+                    '<span class="status-indicator online"></span>Active' : 
+                    '<span class="status-indicator offline"></span>Disabled';
+            }
+            
+            const profile = document.getElementById('active-profile');
+            if (profile) {
+                profile.textContent = activeMode.charAt(0).toUpperCase() + activeMode.slice(1);
+            }
+        }
+        
+        // DNS Protection
+        function toggleDNSProtection() {
+            alert('DNS Protection toggled');
+        }
+        
+        function applyDNSSettings() {
+            alert('DNS settings applied');
+        }
+        
+        // Stealth Mode
+        function activateFullStealth() {
+            alert('Full stealth mode activated');
+        }
+        
+        function deactivateStealth() {
+            alert('Stealth mode deactivated');
+        }
+        
+        // Devices
+        function scanDevices() {
+            alert('Scanning for devices...');
+        }
+        
+        function blockDevice(ip) {
+            alert('Device ' + ip + ' blocked');
+        }
+        
+        // Bandwidth
+        function refreshBandwidth() {
+            alert('Refreshing bandwidth stats...');
+        }
+        
+        // Alerts
+        function clearLogs() {
+            if (confirm('Clear all logs?')) {
+                alert('Logs cleared');
+            }
+        }
+        
+        // Ad Blocking
+        function toggleAdBlock() {
+            alert('Ad blocking toggled');
+        }
+        
+        // Parental Controls
+        function addRestriction() {
+            alert('Restriction added');
+        }
+        
+        function blockDomain() {
+            alert('Domain blocked');
+        }
+        
+        function unblockDomain(domain) {
+            alert('Removed ' + domain + ' from blocklist');
+        }
+        
+        // Guest WiFi
+        function toggleGuestWiFi() {
+            alert('Guest WiFi toggled');
+        }
+        
+        function generateGuestQR() {
+            document.getElementById('qr-code-card').classList.remove('hidden');
+            alert('QR code generated');
+        }
+        
+        function applyGuestSettings() {
+            alert('Guest WiFi settings applied');
+        }
+        
+        // Schedules
+        function addSchedule() {
+            alert('Add new schedule');
+        }
+        
+        // Profiles
+        function switchProfile(profile) {
+            alert('Switched to ' + profile + ' profile');
+        }
+        
+        // Captive Portal
+        function toggleCaptivePortal() {
+            alert('Captive portal toggled');
+        }
+        
+        function applyCaptiveSettings() {
+            alert('Captive portal settings applied');
+        }
+        
+        // Honeytoken
+        function toggleHoneytoken() {
+            alert('Honeytoken toggled');
+        }
+        
+        function deployHoneytoken() {
+            alert('Honeytoken deployed');
+        }
+        
+        // VPN Failover
+        function toggleFailover() {
+            alert('VPN failover toggled');
+        }
+        
+        function testFailover() {
+            alert('Testing VPN failover...');
+        }
+        
+        // Network
+        function applyNetworkSettings() {
+            alert('Network settings applied');
+        }
+        
+        // Wireless
+        function applyWiFiSettings() {
+            alert('2.4GHz settings applied');
+        }
+        
+        function apply5GSettings() {
+            alert('5GHz settings applied');
+        }
+        
+        // Firewall
+        function addFirewallRule() {
+            alert('Add firewall rule');
+        }
+        
+        function addPortForward() {
+            alert('Add port forward rule');
+        }
+        
+        // System
+        function changePassword() {
+            alert('Password changed');
+        }
+        
+        function rebootRouter() {
+            if (confirm('Reboot router?')) {
+                alert('Rebooting...');
+            }
+        }
+        
+        function factoryReset() {
+            if (confirm('Factory reset? This will erase all settings!')) {
+                alert('Performing factory reset...');
+            }
+        }
+        
+        function backupSettings() {
+            alert('Downloading settings backup...');
+        }
+        
+        function restoreSettings() {
+            alert('Upload backup file to restore');
+        }
+        
+        function checkUpdates() {
+            alert('Checking for firmware updates...');
+        }
+        
+        // Other functions
+        function refreshAll() {
+            alert('Refreshing all data...');
+            updateDashboard();
+        }
+        
+        function calculateScore() {
+            alert('Recalculating security score...');
+        }
+        
+        function refreshVPN() {
+            alert('Refreshing VPN status...');
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            updateDashboard();
+        });
+    </script>
+</body>
+</html>

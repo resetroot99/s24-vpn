@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S24 Security Router</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+            color: #e0e0e0;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        /* Mode Toggle */
+        .mode-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: rgba(255, 140, 0, 0.1);
+            border: 1px solid rgba(255, 140, 0, 0.3);
+            border-radius: 25px;
+            padding: 4px;
+            display: flex;
+            gap: 4px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .mode-btn {
+            padding: 10px 20px;
+            border: none;
+            background: transparent;
+            color: #888;
+            cursor: pointer;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+        
+        .mode-btn:hover {
+            color: #ff8c00;
+        }
+        
+        .mode-btn.active {
+            background: linear-gradient(135deg, #ff8c00 0%, #ffa500 100%);
+            color: #fff;
+            box-shadow: 0 2px 10px rgba(255, 140, 0, 0.4);
+        }
+        
+        .container { display: flex; height: 100vh; }
+        
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: rgba(26, 26, 26, 0.95);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 140, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .logo {
+            padding: 35px 20px;
+            border-bottom: 1px solid rgba(255, 140, 0, 0.1);
+            font-size: 32px;
+            font-weight: 900;
+            color: #ff8c00;
+            text-align: center;
+            letter-spacing: 6px;
+        }
+        
+        .nav-menu { flex: 1; padding: 25px 0; }
+        
+        .nav-section { margin-bottom: 25px; }
+        
+        .nav-section-title {
+            padding: 12px 20px;
+            font-size: 10px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 700;
+        }
+        
+        .nav-item {
+            padding: 14px 20px;
+            cursor: pointer;
+            border-left: 3px solid transparent;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .nav-item:hover {
+            background: rgba(255, 140, 0, 0.1);
+            border-left-color: #ff8c00;
+            padding-left: 25px;
+        }
+        
+        .nav-item.active {
+            background: rgba(255, 140, 0, 0.15);
+            border-left-color: #ff8c00;
+            color: #ff8c00;
+        }
+        
+        .nav-icon { 
+            width: 20px;
+            text-align: center;
+            font-size: 16px;
+        }
+        
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        /* Header */
+        .header {
+            background: rgba(26, 26, 26, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 140, 0, 0.1);
+            padding: 25px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .header-title {
+            font-size: 22px;
+            font-weight: 600;
+            color: #e0e0e0;
+        }
+        
+        .security-badge {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #00aa00 0%, #00ff00 100%);
+            color: #000;
+            font-weight: 700;
+            font-size: 14px;
+            border-radius: 30px;
+            box-shadow: 0 4px 20px rgba(0, 255, 0, 0.3);
+            letter-spacing: 1px;
+        }
+        
+        .security-badge i {
+            font-size: 16px;
+        }
+        
+        /* Content Area */
+        .content-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 40px;
+        }
+        
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        /* Widget Cards */
+        .widget {
+            background: rgba(26, 26, 26, 0.9);
+            border: 1px solid rgba(255, 140, 0, 0.2);
+            border-radius: 20px;
+            padding: 30px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .widget:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(255, 140, 0, 0.2);
+            border-color: rgba(255, 140, 0, 0.4);
+        }
+        
+        .widget-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        
+        .widget-title {
+            font-size: 13px;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 700;
+        }
+        
+        .widget-icon {
+            font-size: 24px;
+            color: #ff8c00;
+        }
+        
+        .widget-value {
+            font-size: 36px;
+            font-weight: 700;
+            color: #e0e0e0;
+            margin-bottom: 12px;
+        }
+        
+        .widget-label {
+            font-size: 13px;
+            color: #666;
+            font-weight: 500;
+        }
+        
+        .widget-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: #888;
+            font-weight: 500;
+        }
+        
+        /* Status Dot */
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        .status-dot.online { 
+            background: #00ff00; 
+            box-shadow: 0 0 15px #00ff00;
+        }
+        
+        .status-dot.offline { 
+            background: #ff0000; 
+            box-shadow: 0 0 15px #ff0000;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(0.9); }
+        }
+        
+        /* Map Container */
+        .map-container {
+            background: rgba(26, 26, 26, 0.9);
+            border: 1px solid rgba(255, 140, 0, 0.2);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            min-height: 500px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .map-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #ff8c00;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .map-title i {
+            font-size: 22px;
+        }
+        
+        .world-map {
+            position: relative;
+            width: 100%;
+            height: 420px;
+            background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAwIDUwMCI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImdyYWQxIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3R5bGU9InN0b3AtY29sb3I6cmdiYSgyNTUsMTQwLDAsMC4wNSk7c3RvcC1vcGFjaXR5OjEiIC8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3R5bGU9InN0b3AtY29sb3I6cmdiYSgyNTUsMTQwLDAsMC4wMik7c3RvcC1vcGFjaXR5OjEiIC8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iMTAwMCIgaGVpZ2h0PSI1MDAiIGZpbGw9InVybCgjZ3JhZDEpIi8+CiAgPCEtLSBHcmlkIGxpbmVzIC0tPgogIDxnIHN0cm9rZT0icmdiYSgyNTUsMTQwLDAsMC4xKSIgc3Ryb2tlLXdpZHRoPSIxIiBmaWxsPSJub25lIj4KICAgIDwhLS0gTGF0aXR1ZGUgbGluZXMgLS0+CiAgICA8bGluZSB4MT0iMCIgeTE9IjEwMCIgeDI9IjEwMDAiIHkyPSIxMDAiLz4KICAgIDxsaW5lIHgxPSIwIiB5MT0iMjAwIiB4Mj0iMTAwMCIgeTI9IjIwMCIvPgogICAgPGxpbmUgeDE9IjAiIHkxPSIzMDAiIHgyPSIxMDAwIiB5Mj0iMzAwIi8+CiAgICA8bGluZSB4MT0iMCIgeTE9IjQwMCIgeDI9IjEwMDAiIHkyPSI0MDAiLz4KICAgIDwhLS0gTG9uZ2l0dWRlIGxpbmVzIC0tPgogICAgPGxpbmUgeDE9IjIwMCIgeTE9IjAiIHgyPSIyMDAiIHkyPSI1MDAiLz4KICAgIDxsaW5lIHgxPSI0MDAiIHkxPSIwIiB4Mj0iNDAwIiB5Mj0iNTAwIi8+CiAgICA8bGluZSB4MT0iNjAwIiB5MT0iMCIgeDI9IjYwMCIgeTI9IjUwMCIvPgogICAgPGxpbmUgeDE9IjgwMCIgeTE9IjAiIHgyPSI4MDAiIHkyPSI1MDAiLz4KICA8L2c+CiAgPCEtLSBTaW1wbGlmaWVkIGNvbnRpbmVudHMgLS0+CiAgPGcgZmlsbD0ibm9uZSIgc3Ryb2tlPSJyZ2JhKDI1NSwxNDAsMCwwLjIpIiBzdHJva2Utd2lkdGg9IjIiPgogICAgPCEtLSBOb3J0aCBBbWVyaWNhIC0tPgogICAgPHBhdGggZD0iTSAxNTAgMTAwIEwgMjAwIDgwIEwgMjgwIDkwIEwgMzIwIDEyMCBMIDMwMCAxODAgTCAyNjAgMjQwIEwgMjIwIDI2MCBMIDE4MCAyNDAgTCAxNjAgMjAwIEwgMTUwIDEwMCBaIi8+CiAgICA8IS0tIFNvdXRoIEFtZXJpY2EgLS0+CiAgICA8cGF0aCBkPSJNIDI0MCAyODAgTCAyODAgMjcwIEwgMzAwIDMwMCBMIDI5MCA0MDAgTCAyNjAgNDIwIEwgMjQwIDM4MCBMIDI0MCAyODAgWiIvPgogICAgPCEtLSBFdXJvcGUgLS0+CiAgICA8cGF0aCBkPSJNIDQ4MCAxMDAgTCA1NDAgOTAgTCA1ODAgMTIwIEwgNTYwIDE4MCBMIDQ5MCAxNzAgTCA0ODAgMTAwIFoiLz4KICAgIDwhLS0gQWZyaWNhIC0tPgogICAgPHBhdGggZD0iTSA0ODAgMjIwIEwgNTYwIDIxMCBMIDU4MCAyNjAgTCA1OTAgMzYwIEwgNTQwIDM4MCBMIDQ5MCAzNjAgTCA0ODAgMjIwIFoiLz4KICAgIDwhLS0gQXNpYSAtLT4KICAgIDxwYXRoIGQ9Ik0gNjAwIDgwIEwgNzgwIDcwIEwgODUwIDEyMCBMIDg0MCAxODAgTCA3ODAgMjIwIEwgNzIwIDI0MCBMIDY0MCAyMDAgTCA2MDAgMTQwIEwgNjAwIDgwIFoiLz4KICAgIDwhLS0gQXVzdHJhbGlhIC0tPgogICAgPHBhdGggZD0iTSA3NTAgMzIwIEwgODgwIDMxMCBMIDkwMCAzNjAgTCA4ODAgNDEwIEwgNzgwIDQxMCBMIDc1MCAzMjAgWiIvPgogIDwvZz4KPC9zdmc+') center/contain no-repeat;
+            background-size: 100% 100%;
+        }
+        
+        .server-marker {
+            position: absolute;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .server-marker:hover {
+            transform: scale(1.15);
+            z-index: 10;
+        }
+        
+        .marker-dot {
+            width: 24px;
+            height: 24px;
+            background: #ff8c00;
+            border: 4px solid rgba(255, 140, 0, 0.3);
+            border-radius: 50%;
+            box-shadow: 0 0 20px rgba(255, 140, 0, 0.6);
+            animation: ripple 2s infinite;
+            position: relative;
+        }
+        
+        .marker-dot.active {
+            background: #00ff00;
+            border-color: rgba(0, 255, 0, 0.3);
+            box-shadow: 0 0 25px rgba(0, 255, 0, 0.8);
+        }
+        
+        .marker-dot.active::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 12px;
+            height: 12px;
+            background: #fff;
+            border-radius: 50%;
+        }
+        
+        @keyframes ripple {
+            0% { box-shadow: 0 0 0 0 rgba(255, 140, 0, 0.6); }
+            100% { box-shadow: 0 0 0 30px rgba(255, 140, 0, 0); }
+        }
+        
+        .marker-label {
+            position: absolute;
+            top: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.95);
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+            border: 1px solid rgba(255, 140, 0, 0.4);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .marker-ping {
+            position: absolute;
+            bottom: -32px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 11px;
+            color: #00ff00;
+            font-weight: 700;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 4px 10px;
+            border-radius: 6px;
+            border: 1px solid rgba(0, 255, 0, 0.3);
+        }
+        
+        /* Quick Actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .action-btn {
+            background: rgba(255, 140, 0, 0.1);
+            border: 1px solid rgba(255, 140, 0, 0.3);
+            border-radius: 16px;
+            padding: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .action-btn:hover {
+            background: rgba(255, 140, 0, 0.2);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(255, 140, 0, 0.3);
+            border-color: rgba(255, 140, 0, 0.5);
+        }
+        
+        .action-icon {
+            font-size: 40px;
+            margin-bottom: 15px;
+            color: #ff8c00;
+        }
+        
+        .action-label {
+            font-size: 15px;
+            font-weight: 700;
+            color: #e0e0e0;
+            margin-bottom: 8px;
+        }
+        
+        .action-desc {
+            font-size: 12px;
+            color: #666;
+            font-weight: 500;
+        }
+        
+        /* Toggle Switch */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 32px;
+        }
+        
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #333;
+            transition: .4s;
+            border-radius: 32px;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.5);
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 24px;
+            width: 24px;
+            left: 4px;
+            bottom: 4px;
+            background: linear-gradient(135deg, #888 0%, #666 100%);
+            transition: .4s;
+            border-radius: 50%;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+        
+        input:checked + .toggle-slider {
+            background: linear-gradient(135deg, #ff8c00 0%, #ffa500 100%);
+        }
+        
+        input:checked + .toggle-slider:before {
+            transform: translateX(28px);
+            background: linear-gradient(135deg, #fff 0%, #f0f0f0 100%);
+        }
+        
+        /* Progress Bar */
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 15px;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff8c00 0%, #00ff00 100%);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+            box-shadow: 0 0 10px rgba(255, 140, 0, 0.5);
+        }
+        
+        /* Tooltip */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: help;
+            color: #888;
+        }
+        
+        .tooltip:hover {
+            color: #ff8c00;
+        }
+        
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 220px;
+            background-color: rgba(0, 0, 0, 0.95);
+            color: #fff;
+            text-align: center;
+            border-radius: 10px;
+            padding: 12px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -110px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 12px;
+            border: 1px solid rgba(255, 140, 0, 0.4);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            font-weight: 500;
+        }
+        
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        /* Hidden */
+        .hidden { display: none; }
+        
+        /* Simple Mode */
+        .simple-mode .nav-section:not(:first-child) { display: none; }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { 
+            background: rgba(26, 26, 26, 0.5);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb { 
+            background: rgba(255, 140, 0, 0.4);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover { 
+            background: rgba(255, 140, 0, 0.6);
+        }
+    </style>
+</head>
+<body>
+    <div class="mode-toggle">
+        <button class="mode-btn active" onclick="setMode('simple')">Simple</button>
+        <button class="mode-btn" onclick="setMode('advanced')">Advanced</button>
+    </div>
+    
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">S24</div>
+            <div class="nav-menu">
+                <div class="nav-section">
+                    <div class="nav-section-title">Essentials</div>
+                    <div class="nav-item active essential" onclick="showSection('dashboard')">
+                        <i class="fas fa-th-large nav-icon"></i>
+                        <div>Dashboard</div>
+                    </div>
+                    <div class="nav-item essential" onclick="showSection('vpn')">
+                        <i class="fas fa-shield-alt nav-icon"></i>
+                        <div>VPN</div>
+                    </div>
+                    <div class="nav-item essential" onclick="showSection('devices')">
+                        <i class="fas fa-laptop nav-icon"></i>
+                        <div>Devices</div>
+                    </div>
+                    <div class="nav-item essential" onclick="showSection('wifi')">
+                        <i class="fas fa-wifi nav-icon"></i>
+                        <div>WiFi</div>
+                    </div>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Security</div>
+                    <div class="nav-item" onclick="showSection('security')">
+                        <i class="fas fa-lock nav-icon"></i>
+                        <div>Security</div>
+                    </div>
+                    <div class="nav-item" onclick="showSection('privacy')">
+                        <i class="fas fa-eye-slash nav-icon"></i>
+                        <div>Privacy Modes</div>
+                    </div>
+                    <div class="nav-item" onclick="showSection('parental')">
+                        <i class="fas fa-users nav-icon"></i>
+                        <div>Parental Controls</div>
+                    </div>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Advanced</div>
+                    <div class="nav-item" onclick="showSection('network')">
+                        <i class="fas fa-network-wired nav-icon"></i>
+                        <div>Network</div>
+                    </div>
+                    <div class="nav-item" onclick="showSection('firewall')">
+                        <i class="fas fa-fire nav-icon"></i>
+                        <div>Firewall</div>
+                    </div>
+                    <div class="nav-item" onclick="showSection('system')">
+                        <i class="fas fa-cog nav-icon"></i>
+                        <div>System</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <div class="header-title">Welcome back</div>
+                <div class="security-badge">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>SECURE</span>
+                    <span>|</span>
+                    <span>Grade A</span>
+                </div>
+            </div>
+            
+            <div class="content-area">
+                <!-- Dashboard Section -->
+                <div id="section-dashboard">
+                    <!-- Status Widgets -->
+                    <div class="dashboard-grid">
+                        <div class="widget">
+                            <div class="widget-header">
+                                <div class="widget-title">VPN Status</div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="vpn-toggle" onchange="toggleVPN()">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="widget-status">
+                                <div class="status-dot offline" id="vpn-status-dot"></div>
+                                <span id="vpn-status-text">Disconnected</span>
+                            </div>
+                            <div class="tooltip" style="margin-top: 12px; font-size: 13px;">
+                                <i class="fas fa-info-circle"></i> What's this?
+                                <span class="tooltiptext">VPN encrypts all your internet traffic for privacy and security. Click the toggle to connect.</span>
+                            </div>
+                        </div>
+                        
+                        <div class="widget">
+                            <div class="widget-header">
+                                <div class="widget-title">Connected Devices</div>
+                                <i class="fas fa-laptop widget-icon"></i>
+                            </div>
+                            <div class="widget-value">3</div>
+                            <div class="widget-label">Active now</div>
+                        </div>
+                        
+                        <div class="widget">
+                            <div class="widget-header">
+                                <div class="widget-title">Data Usage Today</div>
+                                <i class="fas fa-chart-line widget-icon"></i>
+                            </div>
+                            <div class="widget-value">2.4 GB</div>
+                            <div class="widget-label">Last 24 hours</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 45%;"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="widget">
+                            <div class="widget-header">
+                                <div class="widget-title">Threats Blocked</div>
+                                <i class="fas fa-ban widget-icon"></i>
+                            </div>
+                            <div class="widget-value">1,247</div>
+                            <div class="widget-label">Ads & trackers today</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Server Map -->
+                    <div class="map-container">
+                        <div class="map-title">
+                            <i class="fas fa-globe-americas"></i>
+                            Select Your VPN Location
+                        </div>
+                        <div class="world-map">
+                            <!-- Netherlands -->
+                            <div class="server-marker" style="left: 48%; top: 23%;" onclick="selectServer('nl1', this)">
+                                <div class="marker-dot"></div>
+                                <div class="marker-label">
+                                    <i class="fas fa-server"></i>
+                                    Netherlands
+                                </div>
+                                <div class="marker-ping">12ms</div>
+                            </div>
+                            
+                            <!-- Canada -->
+                            <div class="server-marker" style="left: 20%; top: 28%;" onclick="selectServer('ca3', this)">
+                                <div class="marker-dot"></div>
+                                <div class="marker-label">
+                                    <i class="fas fa-server"></i>
+                                    Canada
+                                </div>
+                                <div class="marker-ping">45ms</div>
+                            </div>
+                            
+                            <!-- USA -->
+                            <div class="server-marker" style="left: 18%; top: 40%;" onclick="selectServer('us1', this)">
+                                <div class="marker-dot"></div>
+                                <div class="marker-label">
+                                    <i class="fas fa-server"></i>
+                                    USA
+                                </div>
+                                <div class="marker-ping">38ms</div>
+                            </div>
+                            
+                            <!-- Thailand -->
+                            <div class="server-marker" style="left: 75%; top: 53%;" onclick="selectServer('th1', this)">
+                                <div class="marker-dot"></div>
+                                <div class="marker-label">
+                                    <i class="fas fa-server"></i>
+                                    Thailand
+                                </div>
+                                <div class="marker-ping">85ms</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Quick Actions -->
+                    <div class="quick-actions">
+                        <div class="action-btn" onclick="activateMode('home')">
+                            <div class="action-icon">
+                                <i class="fas fa-home"></i>
+                            </div>
+                            <div class="action-label">Home Mode</div>
+                            <div class="action-desc">Safe for home use</div>
+                        </div>
+                        
+                        <div class="action-btn" onclick="activateMode('travel')">
+                            <div class="action-icon">
+                                <i class="fas fa-plane"></i>
+                            </div>
+                            <div class="action-label">Travel Mode</div>
+                            <div class="action-desc">Maximum privacy</div>
+                        </div>
+                        
+                        <div class="action-btn" onclick="activateMode('coffee')">
+                            <div class="action-icon">
+                                <i class="fas fa-mug-hot"></i>
+                            </div>
+                            <div class="action-label">Public WiFi</div>
+                            <div class="action-desc">Coffee shop safe</div>
+                        </div>
+                        
+                        <div class="action-btn" onclick="showSection('parental')">
+                            <div class="action-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="action-label">Family Safe</div>
+                            <div class="action-desc">Parental controls</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Other sections hidden by default -->
+                <div id="section-vpn" class="hidden">
+                    <h2 style="color: #ff8c00; margin-bottom: 20px;">VPN Settings</h2>
+                    <p>VPN configuration options...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let currentMode = 'simple';
+        let selectedServer = null;
+        let vpnEnabled = false;
+        
+        // Mode switching
+        function setMode(mode) {
+            currentMode = mode;
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            if (mode === 'simple') {
+                document.body.classList.add('simple-mode');
+            } else {
+                document.body.classList.remove('simple-mode');
+            }
+        }
+        
+        // Section navigation
+        function showSection(section) {
+            document.querySelectorAll('.content-area > div[id^="section-"]').forEach(el => {
+                el.classList.add('hidden');
+            });
+            document.getElementById('section-' + section).classList.remove('hidden');
+            
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+        }
+        
+        // VPN toggle
+        function toggleVPN() {
+            vpnEnabled = document.getElementById('vpn-toggle').checked;
+            const statusDot = document.getElementById('vpn-status-dot');
+            const statusText = document.getElementById('vpn-status-text');
+            
+            if (vpnEnabled) {
+                statusDot.classList.remove('offline');
+                statusDot.classList.add('online');
+                statusText.textContent = 'Connected';
+                if (selectedServer) {
+                    statusText.textContent = 'Connected to ' + selectedServer.toUpperCase();
+                }
+            } else {
+                statusDot.classList.remove('online');
+                statusDot.classList.add('offline');
+                statusText.textContent = 'Disconnected';
+            }
+        }
+        
+        // Server selection
+        function selectServer(server, element) {
+            // Remove active from all markers
+            document.querySelectorAll('.marker-dot').forEach(dot => {
+                dot.classList.remove('active');
+            });
+            
+            // Add active to selected
+            element.querySelector('.marker-dot').classList.add('active');
+            selectedServer = server;
+            
+            // Auto-enable VPN if not already on
+            if (!vpnEnabled) {
+                document.getElementById('vpn-toggle').checked = true;
+                toggleVPN();
+            } else {
+                document.getElementById('vpn-status-text').textContent = 'Connected to ' + server.toUpperCase();
+            }
+        }
+        
+        // Privacy modes
+        function activateMode(mode) {
+            const messages = {
+                'home': 'Home Mode Activated\n\nVPN: OFF\nAd Blocking: ON\nKill Switch: OFF',
+                'travel': 'Travel Mode Activated\n\nVPN: ON\nKill Switch: ON\nStealth Mode: ON',
+                'coffee': 'Public WiFi Mode Activated\n\nVPN: ON\nSSID Hidden: YES\nKill Switch: OFF'
+            };
+            alert(messages[mode]);
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            document.body.classList.add('simple-mode');
+        });
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,24 @@
+#!/bin/sh
+# S24 Guest WiFi Control
+
+ACTION=$(echo "$QUERY_STRING" | sed 's/.*action=\([^&]*\).*/\1/')
+
+case "$ACTION" in
+    enable)
+        uci set wireless.@wifi-iface[1].disabled='0'
+        uci commit wireless
+        wifi reload
+        echo '{"success":true,"status":"enabled"}'
+        ;;
+    disable)
+        uci set wireless.@wifi-iface[1].disabled='1'
+        uci commit wireless
+        wifi reload
+        echo '{"success":true,"status":"disabled"}'
+        ;;
+    *)
+        echo '{"error":"Unknown action"}'
+        exit 1
+        ;;
+esac
+

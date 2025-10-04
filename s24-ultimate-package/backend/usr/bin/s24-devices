@@ -1,0 +1,36 @@
+#!/bin/sh
+# S24 Devices - List connected devices
+
+# Get DHCP leases
+DEVICES='{"devices":['
+
+FIRST=true
+if [ -f "/tmp/dhcp.leases" ]; then
+    while read -r line; do
+        TIMESTAMP=$(echo "$line" | awk '{print $1}')
+        MAC=$(echo "$line" | awk '{print $2}')
+        IP=$(echo "$line" | awk '{print $3}')
+        HOSTNAME=$(echo "$line" | awk '{print $4}')
+        
+        # Guess device type from hostname
+        TYPE="other"
+        case "$HOSTNAME" in
+            *iPhone*|*android*|*phone*) TYPE="phone" ;;
+            *iPad*|*tablet*) TYPE="tablet" ;;
+            *MacBook*|*laptop*|*ThinkPad*) TYPE="laptop" ;;
+            *TV*|*roku*|*chromecast*) TYPE="tv" ;;
+        esac
+        
+        if [ "$FIRST" = false ]; then
+            DEVICES="$DEVICES,"
+        fi
+        FIRST=false
+        
+        DEVICES="$DEVICES"'{"name":"'"$HOSTNAME"'","ip":"'"$IP"'","mac":"'"$MAC"'","type":"'"$TYPE"'"}'
+    done < /tmp/dhcp.leases
+fi
+
+DEVICES="$DEVICES]}"
+
+echo "$DEVICES"
+

@@ -1,0 +1,35 @@
+#!/bin/sh
+# S24 Privacy Modes
+
+MODE=$(echo "$QUERY_STRING" | sed 's/.*mode=\([^&]*\).*/\1/')
+
+case "$MODE" in
+    home)
+        # VPN off, adblock on
+        /usr/bin/s24-vpn-control action=disconnect >/dev/null
+        echo '{"success":true,"mode":"home","vpn":false,"adblock":true}'
+        ;;
+    travel)
+        # VPN on, kill switch enabled
+        /usr/bin/s24-vpn-control action=connect >/dev/null
+        /usr/bin/s24-killswitch action=enable >/dev/null
+        echo '{"success":true,"mode":"travel","vpn":true,"killswitch":true}'
+        ;;
+    coffee)
+        # Maximum security
+        /usr/bin/s24-vpn-control action=connect >/dev/null
+        /usr/bin/s24-killswitch action=enable >/dev/null
+        /usr/bin/s24-firewall action=enable >/dev/null
+        echo '{"success":true,"mode":"coffee","vpn":true,"killswitch":true,"firewall":true}'
+        ;;
+    family)
+        # Parental controls
+        /usr/bin/s24-vpn-control action=connect >/dev/null
+        echo '{"success":true,"mode":"family","vpn":true,"parental":true}'
+        ;;
+    *)
+        echo '{"error":"Unknown mode"}'
+        exit 1
+        ;;
+esac
+

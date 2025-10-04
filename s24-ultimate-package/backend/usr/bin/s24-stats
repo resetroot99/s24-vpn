@@ -1,0 +1,22 @@
+#!/bin/sh
+# S24 Stats - Collect system statistics
+
+# Count connected devices
+DEVICE_COUNT=$(wc -l < /tmp/dhcp.leases 2>/dev/null || echo "0")
+
+# Get data usage (if vnstat is available)
+if command -v vnstat >/dev/null 2>&1; then
+    DATA_TODAY=$(vnstat --oneline | cut -d\; -f11 | sed 's/ //g')
+else
+    DATA_TODAY="0 MB"
+fi
+
+# Count blocked threats (from firewall logs)
+if [ -f "/var/log/firewall.log" ]; then
+    BLOCKED=$(grep -c "DROP" /var/log/firewall.log 2>/dev/null || echo "0")
+else
+    BLOCKED="0"
+fi
+
+echo '{"devices":'"$DEVICE_COUNT"',"data":"'"$DATA_TODAY"'","blocked":'"$BLOCKED"'}'
+

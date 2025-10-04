@@ -1,0 +1,22 @@
+#!/bin/sh
+# S24 System Control
+
+ACTION=$(echo "$QUERY_STRING" | sed 's/.*action=\([^&]*\).*/\1/')
+
+case "$ACTION" in
+    reboot)
+        echo '{"success":true,"action":"rebooting"}'
+        sleep 1
+        reboot
+        ;;
+    reset)
+        echo '{"success":true,"action":"resetting"}'
+        sleep 1
+        firstboot -y && reboot
+        ;;
+    *)
+        echo '{"error":"Unknown action"}'
+        exit 1
+        ;;
+esac
+

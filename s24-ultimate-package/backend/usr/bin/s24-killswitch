@@ -1,0 +1,31 @@
+#!/bin/sh
+# S24 Kill Switch - Block all traffic if VPN drops
+
+ACTION=$(echo "$QUERY_STRING" | sed 's/.*action=\([^&]*\).*/\1/')
+STATE_FILE="/tmp/s24-killswitch"
+
+case "$ACTION" in
+    enable)
+        # Add iptables rules to block non-VPN traffic
+        iptables -I OUTPUT ! -o lo ! -o wg+ -m mark ! --mark 0xca6c -j REJECT
+        iptables -I FORWARD ! -o wg+ -j REJECT
+        
+        echo "enabled" > "$STATE_FILE"
+        echo '{"success":true,"status":"enabled"}'
+        ;;
+        
+    disable)
+        # Remove kill switch rules
+        iptables -D OUTPUT ! -o lo ! -o wg+ -m mark ! --mark 0xca6c -j REJECT 2>/dev/null
+        iptables -D FORWARD ! -o wg+ -j REJECT 2>/dev/null
+        
+        echo "disabled" > "$STATE_FILE"
+        echo '{"success":true,"status":"disabled"}'
+        ;;
+        
+    *)
+        echo '{"error":"Unknown action"}'
+        exit 1
+        ;;
+esac
+

@@ -1,0 +1,69 @@
+#!/bin/sh
+# S24 VPN Control - Optimized for GL.iNet native integration
+
+ACTION=$(echo "$QUERY_STRING" | sed 's/.*action=\([^&]*\).*/\1/')
+SERVER=$(echo "$QUERY_STRING" | sed 's/.*server=\([^&]*\).*/\1/')
+
+STATE_FILE="/tmp/s24-vpn-state"
+VPN_DIR="/etc/wireguard"
+
+case "$ACTION" in
+    connect)
+        SERVER=${SERVER:-nl1}
+        
+        # Use GL.iNet's native client if available
+        if command -v gl_wireguard >/dev/null 2>&1; then
+            gl_wireguard start "$SERVER" >/dev/null 2>&1
+        elif [ -f "$VPN_DIR/$SERVER.conf" ]; then
+            wg-quick up "$SERVER" >/dev/null 2>&1
+        else
+            echo '{"error":"VPN config not found"}'
+            exit 1
+        fi
+        
+        # Save state atomically
+        printf "connected\n%s" "$SERVER" > "$STATE_FILE"
+        
+        # Clear cache
+        rm -f /tmp/s24-*-cache 2>/dev/null
+        
+        echo '{"success":true,"status":"connected","server":"'$SERVER'"}'
+        ;;
+        
+    disconnect)
+        # Stop VPN
+        if command -v gl_wireguard >/dev/null 2>&1; then
+            gl_wireguard stop >/dev/null 2>&1
+        else
+            wg-quick down all >/dev/null 2>&1
+        fi
+        
+        echo "disconnected" > "$STATE_FILE"
+        rm -f /tmp/s24-*-cache 2>/dev/null
+        
+        echo '{"success":true,"status":"disconnected"}'
+        ;;
+        
+    switch)
+        [ -z "$SERVER" ] && echo '{"error":"No server"}' && exit 1
+        
+        # Quick switch
+        if command -v gl_wireguard >/dev/null 2>&1; then
+            gl_wireguard switch "$SERVER" >/dev/null 2>&1
+        else
+            wg-quick down all >/dev/null 2>&1
+            wg-quick up "$SERVER" >/dev/null 2>&1
+        fi
+        
+        printf "connected\n%s" "$SERVER" > "$STATE_FILE"
+        rm -f /tmp/s24-*-cache 2>/dev/null
+        
+        echo '{"success":true,"server":"'$SERVER'"}'
+        ;;
+        
+    *)
+        echo '{"error":"Unknown action"}'
+        exit 1
+        ;;
+esac
+

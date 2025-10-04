@@ -1,0 +1,20 @@
+#!/bin/sh
+# S24 Firewall Control
+
+ACTION=$(echo "$QUERY_STRING" | sed 's/.*action=\([^&]*\).*/\1/')
+
+case "$ACTION" in
+    enable)
+        /etc/init.d/firewall start 2>/dev/null
+        echo '{"success":true,"status":"enabled"}'
+        ;;
+    disable)
+        /etc/init.d/firewall stop 2>/dev/null
+        echo '{"success":true,"status":"disabled"}'
+        ;;
+    *)
+        echo '{"error":"Unknown action"}'
+        exit 1
+        ;;
+esac
+

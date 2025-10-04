@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S24 Admin Panel - Complete</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Courier New', monospace;
+            background: #0a0a0a;
+            color: #d0d0d0;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: #1a1a1a;
+            border-right: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .logo {
+            padding: 20px;
+            border-bottom: 1px solid #333;
+            font-size: 24px;
+            font-weight: bold;
+            color: #ff8c00;
+            text-align: center;
+            letter-spacing: 3px;
+        }
+        
+        .nav-menu {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px 0;
+        }
+        
+        .nav-section {
+            margin-bottom: 20px;
+        }
+        
+        .nav-section-title {
+            padding: 10px 20px;
+            font-size: 12px;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid #222;
+            margin-bottom: 5px;
+        }
+        
+        .nav-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            border-left: 3px solid transparent;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+        }
+        
+        .nav-item:hover {
+            background: #222;
+            border-left-color: #ff8c00;
+        }
+        
+        .nav-item.active {
+            background: #252525;
+            border-left-color: #ff8c00;
+            color: #ff8c00;
+        }
+        
+        .nav-item.has-submenu {
+            position: relative;
+        }
+        
+        .nav-submenu {
+            display: none;
+            background: #151515;
+            margin-left: 20px;
+            border-left: 1px solid #333;
+        }
+        
+        .nav-submenu.show {
+            display: block;
+        }
+        
+        .nav-submenu .nav-item {
+            padding: 8px 20px;
+            font-size: 13px;
+        }
+        
+        .nav-icon {
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+        
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        /* Header */
+        .header {
+            background: #1a1a1a;
+            border-bottom: 1px solid #333;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .header-title {
+            font-size: 18px;
+            color: #ff8c00;
+        }
+        
+        .breadcrumb {
+            color: #888;
+            font-size: 14px;
+        }
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .search-box {
+            background: #0a0a0a;
+            border: 1px solid #333;
+            color: #d0d0d0;
+            padding: 8px 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            width: 200px;
+        }
+        
+        .search-box:focus {
+            outline: none;
+            border-color: #ff8c00;
+        }
+        
+        .header-btn {
+            background: none;
+            border: 1px solid #444;
+            color: #d0d0d0;
+            padding: 8px 15px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+        
+        .header-btn:hover {
+            border-color: #ff8c00;
+            color: #ff8c00;
+        }
+        
+        /* Content Area */
+        .content-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 30px;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #333;
+        }
+        
+        .section-title {
+            font-size: 20px;
+            color: #ff8c00;
+            font-weight: bold;
+        }
+        
+        .section-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            background: #ff8c00;
+            border: none;
+            color: #0a0a0a;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+        
+        .btn:hover {
+            background: #ffa500;
+        }
+        
+        .btn-secondary {
+            background: #333;
+            color: #d0d0d0;
+        }
+        
+        .btn-secondary:hover {
+            background: #444;
+        }
+        
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 11px;
+        }
+        
+        /* Tables */
+        .data-table {
+            background: #151515;
+            border: 1px solid #333;
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        
+        .data-table th {
+            background: #1a1a1a;
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #333;
+            font-size: 13px;
+            color: #ff8c00;
+            font-weight: bold;
+        }
+        
+        .data-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #222;
+            font-size: 13px;
+        }
+        
+        .data-table tr:hover {
+            background: #1a1a1a;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .status-indicator.online {
+            background: #00ff00;
+        }
+        
+        .status-indicator.offline {
+            background: #ff0000;
+        }
+        
+        .status-indicator.warning {
+            background: #ffaa00;
+        }
+        
+        /* Cards */
+        .card {
+            background: #151515;
+            border: 1px solid #333;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .card-title {
+            font-size: 16px;
+            color: #ff8c00;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #333;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .info-card {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            padding: 15px;
+        }
+        
+        .info-label {
+            font-size: 11px;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+        
+        .info-value {
+            font-size: 14px;
+            color: #d0d0d0;
+            font-weight: bold;
+        }
+        
+        /* Forms */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            color: #d0d0d0;
+            margin-bottom: 8px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+        
+        .form-input {
+            background: #0a0a0a;
+            border: 1px solid #333;
+            color: #d0d0d0;
+            padding: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            width: 100%;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #ff8c00;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .form-row .form-group {
+            flex: 1;
+        }
+        
+        /* Toggle Switch */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #333;
+            transition: .3s;
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: #888;
+            transition: .3s;
+        }
+        
+        input:checked + .toggle-slider {
+            background-color: #ff8c00;
+        }
+        
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+            background-color: #fff;
+        }
+        
+        /* VPN Server Cards */
+        .vpn-servers {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .vpn-server {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+        
+        .vpn-server:hover {
+            border-color: #ff8c00;
+            background: #222;
+        }
+        
+        .vpn-server.connected {
+            border-color: #00ff00;
+            background: #1a2a1a;
+        }
+        
+        .vpn-server-flag {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+        
+        .vpn-server-name {
+            font-size: 14px;
+            margin-bottom: 5px;
+            color: #d0d0d0;
+        }
+        
+        .vpn-status {
+            font-size: 11px;
+            color: #888;
+            margin-top: 8px;
+        }
+        
+        .vpn-server.connected .vpn-status {
+            color: #00ff00;
+        }
+        
+        /* Hidden */
+        .hidden {
+            display: none;
+        }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #1a1a1a;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #444;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">S24</div>
+            <div class="nav-menu">
+                <div class="nav-section">
+                    <div class="nav-section-title">Main</div>
+                    <div class="nav-item" onclick="showSection('dashboard')">
+                        <div class="nav-icon">◉</div>
+                        <div>Dashboard</div>
+                    </div>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Network</div>
+                    <div class="nav-item has-submenu" onclick="toggleSubmenu(this)">
+                        <div class="nav-icon">⊞</div>
+                        <div>Interfaces</div>
+                    </div>
+                    <div class="nav-submenu">
+                        <div class="nav-item" onclick="showSection('interfaces-overview')">Overview</div>
+                        <div class="nav-item" onclick="showSection('interfaces-assignments')">Assignments</div>
+                        <div class="nav-item" onclick="showSection('interfaces-devices')">Devices</div>
+                        <div class="nav-item" onclick="showSection('interfaces-wireless')">Wireless</div>
+                        <div class="nav-item" onclick="showSection('interfaces-diagnostics')">Diagnostics</div>
+                    </div>
+                    
+                    <div class="nav-item has-submenu" onclick="toggleSubmenu(this)">
+                        <div class="nav-icon">≋</div>
+                        <div>Wireless</div>
+                    </div>
+                    <div class="nav-submenu">
+                        <div class="nav-item" onclick="showSection('wireless-overview')">Overview</div>
+                        <div class="nav-item" onclick="showSection('wireless-settings')">Settings</div>
+                        <div class="nav-item" onclick="showSection('wireless-scan')">Scan</div>
+                    </div>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Security</div>
+                    <div class="nav-item active" onclick="showSection('vpn')">
+                        <div class="nav-icon">◈</div>
+                        <div>VPN</div>
+                    </div>
+                    <div class="nav-item has-submenu" onclick="toggleSubmenu(this)">
+                        <div class="nav-icon">🛡</div>
+                        <div>Firewall</div>
+                    </div>
+                    <div class="nav-submenu">
+                        <div class="nav-item" onclick="showSection('firewall-rules')">Rules</div>
+                        <div class="nav-item" onclick="showSection('firewall-nat')">NAT</div>
+                        <div class="nav-item" onclick="showSection('firewall-traffic')">Traffic Shaper</div>
+                    </div>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Services</div>
+                    <div class="nav-item has-submenu" onclick="toggleSubmenu(this)">
+                        <div class="nav-icon">⚙</div>
+                        <div>System</div>
+                    </div>
+                    <div class="nav-submenu">
+                        <div class="nav-item" onclick="showSection('system-overview')">Overview</div>
+                        <div class="nav-item" onclick="showSection('system-logs')">Logs</div>
+                        <div class="nav-item" onclick="showSection('system-users')">Users</div>
+                        <div class="nav-item" onclick="showSection('system-backup')">Backup</div>
+                        <div class="nav-item" onclick="showSection('system-firmware')">Firmware</div>
+                    </div>
+                    
+                    <div class="nav-item has-submenu" onclick="toggleSubmenu(this)">
+                        <div class="nav-icon">📊</div>
+                        <div>Reporting</div>
+                    </div>
+                    <div class="nav-submenu">
+                        <div class="nav-item" onclick="showSection('reporting-traffic')">Traffic</div>
+                        <div class="nav-item" onclick="showSection('reporting-bandwidth')">Bandwidth</div>
+                        <div class="nav-item" onclick="showSection('reporting-system')">System</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <div class="header-left">
+                    <div class="header-title">GL-SFT1200 Opal | S24 Secure</div>
+                    <div class="breadcrumb" id="breadcrumb">VPN</div>
+                </div>
+                <div class="header-right">
+                    <input type="text" class="search-box" placeholder="Search..." id="global-search">
+                    <button class="header-btn" onclick="refreshData()">Refresh</button>
+                    <button class="header-btn" onclick="window.open('http://192.168.8.1/cgi-bin/luci', '_blank')">Advanced</button>
+                </div>
+            </div>
+            
+            <div class="content-area">
+                <!-- Dashboard Section -->
+                <div id="section-dashboard" class="hidden">
+                    <div class="section-header">
+                        <div class="section-title">Dashboard</div>
+                        <div class="section-actions">
+                            <button class="btn btn-small" onclick="refreshData()">Refresh All</button>
+                        </div>
+                    </div>
+                    
+                    <div class="info-grid">
+                        <div class="info-card">
+                            <div class="info-label">Router Status</div>
+                            <div class="info-value">
+                                <span class="status-indicator online"></span>
+                                Online
+                            </div>
+                        </div>
+                        <div class="info-card">
+                            <div class="info-label">VPN Status</div>
+                            <div class="info-value" id="dashboard-vpn-status">
+                                <span class="status-indicator offline"></span>
+                                Disconnected
+                            </div>
+                        </div>
+                        <div class="info-card">
+                            <div class="info-label">Uptime</div>
+                            <div class="info-value" id="uptime">--:--:--</div>
+                        </div>
+                        <div class="info-card">
+                            <div class="info-label">Connected Clients</div>
+                            <div class="info-value" id="clients">0</div>
+                        </div>
+                        <div class="info-card">
+                            <div class="info-label">CPU Usage</div>
+                            <div class="info-value" id="cpu-usage">0%</div>
+                        </div>
+                        <div class="info-card">
+                            <div class="info-label">Memory Usage</div>
+                            <div class="info-value" id="memory-usage">0%</div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">System Information</div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <div class="form-label">Model</div>
+                                <div class="info-value">GL-SFT1200 (Opal)</div>
+                            </div>
+                            <div class="form-group">
+                                <div class="form-label">Firmware</div>
+                                <div class="info-value" id="firmware-version">v4.3.25</div>
+                            </div>
+                            <div class="form-group">
+                                <div class="form-label">IP Address</div>
+                                <div class="info-value">192.168.8.1</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- VPN Section -->
+                <div id="section-vpn">
+                    <div class="section-header">
+                        <div class="section-title">VPN Configuration</div>
+                        <div class="section-actions">
+                            <button class="btn btn-small" onclick="refreshVPNStatus()">Refresh</button>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">VPN Connection</div>
+                        <div class="form-group">
+                            <div class="form-label">VPN Status</div>
+                            <div style="display: flex; align-items: center; gap: 15px;">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="vpn-toggle" onchange="toggleVPN()">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                <span id="vpn-toggle-text">Disabled</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">Server Selection</div>
+                        <div class="vpn-servers">
+                            <div class="vpn-server" onclick="selectServer('nl1', this)">
+                                <div class="vpn-server-flag">🇳🇱</div>
+                                <div class="vpn-server-name">Netherlands</div>
+                                <div class="vpn-status">Available</div>
+                            </div>
+                            <div class="vpn-server" onclick="selectServer('ca3', this)">
+                                <div class="vpn-server-flag">🇨🇦</div>
+                                <div class="vpn-server-name">Canada</div>
+                                <div class="vpn-status">Available</div>
+                            </div>
+                            <div class="vpn-server" onclick="selectServer('us1', this)">
+                                <div class="vpn-server-flag">🇺🇸</div>
+                                <div class="vpn-server-name">USA</div>
+                                <div class="vpn-status">Available</div>
+                            </div>
+                            <div class="vpn-server" onclick="selectServer('th1', this)">
+                                <div class="vpn-server-flag">🇹🇭</div>
+                                <div class="vpn-server-name">Thailand</div>
+                                <div class="vpn-status">Available</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">Connection Details</div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <div class="form-label">Current Server</div>
+                                <div class="info-value" id="current-server">None</div>
+                            </div>
+                            <div class="form-group">
+                                <div class="form-label">Public IP</div>
+                                <div class="info-value" id="public-ip">Loading...</div>
+                            </div>
+                            <div class="form-group">
+                                <div class="form-label">Location</div>
+                                <div class="info-value" id="location">Unknown</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Interfaces Overview -->
+                <div id="section-interfaces-overview" class="hidden">
+                    <div class="section-header">
+                        <div class="section-title">Interfaces: Overview</div>
+                        <div class="section-actions">
+                            <button class="btn btn-small" onclick="refreshInterfaces()">Refresh</button>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">Network Interfaces</div>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Status</th>
+                                    <th>Interface</th>
+                                    <th>Device</th>
+                                    <th>IPv4</th>
+                                    <th>IPv6</th>
+                                    <th>Gateway</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="status-indicator online"></span>Up</td>
+                                    <td>LAN (lan)</td>
+                                    <td>br-lan</td>
+                                    <td>192.168.8.1/24</td>
+                                    <td>fe80::201:2eff:fe12:3456/64</td>
+                                    <td>-</td>
+                                    <td>
+                                        <button class="btn btn-small" onclick="configureInterface('lan')">Configure</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><span class="status-indicator online"></span>Up</td>
+                                    <td>WAN (wan)</td>
+                                    <td>eth0</td>
+                                    <td id="wan-ip">DHCP</td>
+                                    <td>fe80::201:2eff:fe12:3457/64</td>
+                                    <td id="wan-gateway">Auto</td>
+                                    <td>
+                                        <button class="btn btn-small" onclick="configureInterface('wan')">Configure</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><span class="status-indicator offline"></span>Down</td>
+                                    <td>WiFi 2.4G</td>
+                                    <td>wlan0</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>
+                                        <button class="btn btn-small" onclick="configureInterface('wlan0')">Configure</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><span class="status-indicator offline"></span>Down</td>
+                                    <td>WiFi 5G</td>
+                                    <td>wlan1</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>
+                                        <button class="btn btn-small" onclick="configureInterface('wlan1')">Configure</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Wireless Overview -->
+                <div id="section-wireless-overview" class="hidden">
+                    <div class="section-header">
+                        <div class="section-title">Wireless: Overview</div>
+                        <div class="section-actions">
+                            <button class="btn btn-small" onclick="scanNetworks()">Scan</button>
+                            <button class="btn btn-small" onclick="refreshWireless()">Refresh</button>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">WiFi Networks</div>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Band</th>
+                                    <th>SSID</th>
+                                    <th>Security</th>
+                                    <th>Channel</th>
+                                    <th>Signal</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>2.4G</td>
+                                    <td id="wifi-ssid-24">GL-SFT1200-XXX</td>
+                                    <td>WPA2-PSK</td>
+                                    <td>6</td>
+                                    <td>-60 dBm</td>
+                                    <td><span class="status-indicator online"></span>Active</td>
+                                    <td>
+                                        <button class="btn btn-small" onclick="configureWiFi('2.4G')">Configure</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>5G</td>
+                                    <td id="wifi-ssid-5">GL-SFT1200-XXX-5G</td>
+                                    <td>WPA2-PSK</td>
+                                    <td>36</td>
+                                    <td>-55 dBm</td>
+                                    <td><span class="status-indicator online"></span>Active</td>
+                                    <td>
+                                        <button class="btn btn-small" onclick="configureWiFi('5G')">Configure</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- System Overview -->
+                <div id="section-system-overview" class="hidden">
+                    <div class="section-header">
+                        <div class="section-title">System: Overview</div>
+                        <div class="section-actions">
+                            <button class="btn btn-small" onclick="rebootRouter()">Reboot</button>
+                            <button class="btn btn-secondary btn-small" onclick="if(confirm('Factory reset will erase all settings. Continue?')) factoryReset()">Factory Reset</button>
+                        </div>
+                    </div>
+                    
+                    <div class="info-grid">
+                        <div class="info-card">
+                            <div class="info-label">System Load</div>
+                            <div class="info-value" id="system-load">0.15, 0.12, 0.08</div>
+                        </div>
+                        <div class="info-card">
+                            <div class="info-label">Memory Usage</div>
+                            <div class="info-value" id="memory-detailed">45MB / 128MB</div>
+                        </div>
+                        <div class="info-card">
+                            <div class="info-label">Storage</div>
+                            <div class="info-value" id="storage-usage">12MB / 16MB</div>
+                        </div>
+                        <div class="info-card">
+                            <div class="info-label">Temperature</div>
+                            <div class="info-value" id="temperature">45°C</div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">Network Statistics</div>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Interface</th>
+                                    <th>Bytes RX</th>
+                                    <th>Bytes TX</th>
+                                    <th>Packets RX</th>
+                                    <th>Packets TX</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>br-lan</td>
+                                    <td>1.2 MB</td>
+                                    <td>856 KB</td>
+                                    <td>1,234</td>
+                                    <td>987</td>
+                                </tr>
+                                <tr>
+                                    <td>eth0</td>
+                                    <td>2.1 MB</td>
+                                    <td>1.5 MB</td>
+                                    <td>2,345</td>
+                                    <td>1,876</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Firewall Rules -->
+                <div id="section-firewall-rules" class="hidden">
+                    <div class="section-header">
+                        <div class="section-title">Firewall: Rules</div>
+                        <div class="section-actions">
+                            <button class="btn btn-small" onclick="addFirewallRule()">Add Rule</button>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">Firewall Rules</div>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Action</th>
+                                    <th>Source</th>
+                                    <th>Destination</th>
+                                    <th>Port</th>
+                                    <th>Protocol</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Accept</td>
+                                    <td>LAN</td>
+                                    <td>Any</td>
+                                    <td>Any</td>
+                                    <td>Any</td>
+                                    <td><span class="status-indicator online"></span>Enabled</td>
+                                    <td>
+                                        <button class="btn btn-small" onclick="editRule(1)">Edit</button>
+                                        <button class="btn btn-secondary btn-small" onclick="deleteRule(1)">Delete</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Accept</td>
+                                    <td>Any</td>
+                                    <td>LAN</td>
+                                    <td>53</td>
+                                    <td>TCP/UDP</td>
+                                    <td><span class="status-indicator online"></span>Enabled</td>
+                                    <td>
+                                        <button class="btn btn-small" onclick="editRule(2)">Edit</button>
+                                        <button class="btn btn-secondary btn-small" onclick="deleteRule(2)">Delete</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let selectedServer = null;
+        let vpnEnabled = false;
+        
+        // Navigation
+        function showSection(section) {
+            document.querySelectorAll('.content-area > div[id^="section-"]').forEach(el => {
+                el.classList.add('hidden');
+            });
+            document.getElementById('section-' + section).classList.remove('hidden');
+            
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+            
+            // Update breadcrumb
+            const breadcrumbMap = {
+                'dashboard': 'Dashboard',
+                'vpn': 'VPN',
+                'interfaces-overview': 'Interfaces > Overview',
+                'wireless-overview': 'Wireless > Overview',
+                'system-overview': 'System > Overview',
+                'firewall-rules': 'Firewall > Rules'
+            };
+            document.getElementById('breadcrumb').textContent = breadcrumbMap[section] || section;
+        }
+        
+        function toggleSubmenu(element) {
+            const submenu = element.nextElementSibling;
+            submenu.classList.toggle('show');
+        }
+        
+        // VPN Functions
+        function selectServer(server, element) {
+            if (!vpnEnabled) {
+                document.querySelectorAll('.vpn-server').forEach(s => s.classList.remove('connected'));
+                element.classList.add('connected');
+                selectedServer = server;
+                
+                const serverNames = {
+                    'nl1': 'Netherlands',
+                    'ca3': 'Canada',
+                    'us1': 'USA',
+                    'th1': 'Thailand'
+                };
+                
+                document.getElementById('current-server').textContent = serverNames[server];
+            }
+        }
+        
+        function toggleVPN() {
+            vpnEnabled = document.getElementById('vpn-toggle').checked;
+            const statusText = document.getElementById('vpn-toggle-text');
+            
+            if (vpnEnabled) {
+                if (!selectedServer) {
+                    alert('Please select a server first');
+                    document.getElementById('vpn-toggle').checked = false;
+                    vpnEnabled = false;
+                    return;
+                }
+                
+                statusText.textContent = 'Connecting...';
+                statusText.style.color = '#ffa500';
+                
+                setTimeout(() => {
+                    statusText.textContent = 'Connected';
+                    statusText.style.color = '#00ff00';
+                    
+                    const dashStatus = document.getElementById('dashboard-vpn-status');
+                    if (dashStatus) {
+                        dashStatus.innerHTML = '<span class="status-indicator online"></span>Connected';
+                    }
+                }, 1500);
+            } else {
+                statusText.textContent = 'Disabled';
+                statusText.style.color = '#d0d0d0';
+                
+                const dashStatus = document.getElementById('dashboard-vpn-status');
+                if (dashStatus) {
+                    dashStatus.innerHTML = '<span class="status-indicator offline"></span>Disconnected';
+                }
+            }
+        }
+        
+        function refreshVPNStatus() {
+            // Simulate VPN status refresh
+            console.log('Refreshing VPN status...');
+        }
+        
+        // Interface Functions
+        function configureInterface(interface) {
+            alert(`Configure ${interface} interface`);
+            // In real implementation: redirect to interface config
+        }
+        
+        function refreshInterfaces() {
+            // Simulate interface refresh
+            console.log('Refreshing interfaces...');
+        }
+        
+        // Wireless Functions
+        function configureWiFi(band) {
+            alert(`Configure ${band} WiFi`);
+        }
+        
+        function scanNetworks() {
+            alert('Scanning for networks...');
+        }
+        
+        function refreshWireless() {
+            console.log('Refreshing wireless...');
+        }
+        
+        // System Functions
+        function rebootRouter() {
+            if (confirm('Router will reboot. Continue?')) {
+                alert('Rebooting router...');
+            }
+        }
+        
+        function factoryReset() {
+            alert('Performing factory reset...');
+        }
+        
+        // Firewall Functions
+        function addFirewallRule() {
+            alert('Add new firewall rule');
+        }
+        
+        function editRule(id) {
+            alert(`Edit rule ${id}`);
+        }
+        
+        function deleteRule(id) {
+            if (confirm(`Delete rule ${id}?`)) {
+                alert(`Rule ${id} deleted`);
+            }
+        }
+        
+        // Utility Functions
+        function refreshData() {
+            console.log('Refreshing all data...');
+            // Refresh various data sources
+        }
+        
+        function updatePublicIP() {
+            fetch('https://api.ipify.org?format=json')
+                .then(r => r.json())
+                .then(data => {
+                    document.getElementById('public-ip').textContent = data.ip;
+                    
+                    return fetch('http://ip-api.com/json/' + data.ip);
+                })
+                .then(r => r.json())
+                .then(data => {
+                    document.getElementById('location').textContent = data.city + ', ' + data.country;
+                })
+                .catch(e => {
+                    document.getElementById('public-ip').textContent = 'Unavailable';
+                    document.getElementById('location').textContent = 'Unknown';
+                });
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            showSection('vpn');
+            updatePublicIP();
+            
+            // Update uptime every second
+            let uptime = 0;
+            setInterval(() => {
+                uptime++;
+                const hours = Math.floor(uptime / 3600);
+                const minutes = Math.floor((uptime % 3600) / 60);
+                const seconds = uptime % 60;
+                const uptimeEl = document.getElementById('uptime');
+                if (uptimeEl) {
+                    uptimeEl.textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                }
+            }, 1000);
+            
+            // Simulate system stats updates
+            setInterval(() => {
+                const cpu = Math.random() * 30 + 10;
+                const memory = Math.random() * 40 + 30;
+                document.getElementById('cpu-usage').textContent = cpu.toFixed(1) + '%';
+                document.getElementById('memory-usage').textContent = memory.toFixed(1) + '%';
+            }, 5000);
+        });
+        
+        // Global search
+        document.getElementById('global-search').addEventListener('keyup', function(e) {
+            if (e.key === 'Enter') {
+                const query = this.value.toLowerCase();
+                console.log('Searching for:', query);
+                // Implement search functionality
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+#!/bin/sh
+# S24 Devices - Optimized device listing
+
+CACHE="/tmp/s24-devices-cache"
+CACHE_TTL=10
+
+# Check cache
+if [ -f "$CACHE" ]; then
+    AGE=$(($(date +%s) - $(stat -c %Y "$CACHE" 2>/dev/null || echo 0)))
+    [ $AGE -lt $CACHE_TTL ] && cat "$CACHE" && exit 0
+fi
+
+# Build JSON directly (no intermediate variables)
+echo -n '{"devices":[' > "$CACHE"
+
+FIRST=1
+while read TS MAC IP NAME; do
+    [ $FIRST -eq 0 ] && echo -n ',' >> "$CACHE"
+    FIRST=0
+    
+    # Simple type detection
+    TYPE="other"
+    case "$NAME" in
+        *Phone*|*phone*|*android*) TYPE="phone" ;;
+        *Pad*|*pad*|*tablet*) TYPE="tablet" ;;
+        *Book*|*book*|*laptop*) TYPE="laptop" ;;
+        *TV*|*tv*) TYPE="tv" ;;
+    esac
+    
+    echo -n '{"name":"'$NAME'","ip":"'$IP'","mac":"'$MAC'","type":"'$TYPE'"}' >> "$CACHE"
+done < /tmp/dhcp.leases 2>/dev/null
+
+echo ']}' >> "$CACHE"
+cat "$CACHE"
+

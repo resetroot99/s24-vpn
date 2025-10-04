@@ -1,0 +1,34 @@
+#!/bin/sh
+# S24 Status - Get current system status
+
+STATE_FILE="/tmp/s24-vpn-state"
+
+# VPN status
+if [ -f "$STATE_FILE" ]; then
+    VPN_STATUS=$(head -n1 "$STATE_FILE")
+    VPN_SERVER=$(tail -n1 "$STATE_FILE")
+else
+    VPN_STATUS="disconnected"
+    VPN_SERVER="null"
+fi
+
+# Convert to boolean
+if [ "$VPN_STATUS" = "connected" ]; then
+    VPN_CONNECTED="true"
+else
+    VPN_CONNECTED="false"
+fi
+
+# Device count
+DEVICE_COUNT=$(wc -l < /tmp/dhcp.leases 2>/dev/null || echo "0")
+
+# Kill switch status
+KILLSWITCH_FILE="/tmp/s24-killswitch"
+if [ -f "$KILLSWITCH_FILE" ] && [ "$(cat $KILLSWITCH_FILE)" = "enabled" ]; then
+    KILLSWITCH="true"
+else
+    KILLSWITCH="false"
+fi
+
+echo '{"vpnConnected":'"$VPN_CONNECTED"',"selectedServer":"'"$VPN_SERVER"'","devices":'"$DEVICE_COUNT"',"killSwitch":'"$KILLSWITCH"'}'
+

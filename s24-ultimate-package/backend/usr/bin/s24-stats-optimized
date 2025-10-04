@@ -1,0 +1,30 @@
+#!/bin/sh
+# S24 Stats - Optimized for Opal (minimal resource usage)
+
+# Cache file
+CACHE="/tmp/s24-stats-cache"
+CACHE_TTL=30
+
+# Check cache
+if [ -f "$CACHE" ]; then
+    AGE=$(($(date +%s) - $(stat -c %Y "$CACHE" 2>/dev/null || echo 0)))
+    [ $AGE -lt $CACHE_TTL ] && cat "$CACHE" && exit 0
+fi
+
+# Count devices (single pass)
+DEVICES=$(grep -c . /tmp/dhcp.leases 2>/dev/null || echo 0)
+
+# Get data usage (lightweight check)
+if [ -f /proc/net/dev ]; then
+    DATA=$(awk '/wg0/{rx=$2; tx=$10; print int((rx+tx)/1048576)}' /proc/net/dev 2>/dev/null || echo 0)
+else
+    DATA=0
+fi
+
+# Blocked count (from firewall log if exists, else 0)
+BLOCKED=$([ -f /var/log/firewall.log ] && grep -c DROP /var/log/firewall.log 2>/dev/null || echo 0)
+
+# Generate response and cache it
+RESPONSE='{"devices":'$DEVICES',"data":"'$DATA' MB","blocked":'$BLOCKED'}'
+echo "$RESPONSE" | tee "$CACHE"
+

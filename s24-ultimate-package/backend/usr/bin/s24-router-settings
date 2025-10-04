@@ -1,0 +1,20 @@
+#!/bin/sh
+# S24 Router Settings
+
+read POST_DATA
+
+NAME=$(echo "$POST_DATA" | sed 's/.*"name":"\([^"]*\)".*/\1/')
+TIMEZONE=$(echo "$POST_DATA" | sed 's/.*"timezone":"\([^"]*\)".*/\1/')
+
+[ -n "$NAME" ] && {
+    uci set system.@system[0].hostname="$NAME"
+    uci commit system
+}
+
+[ -n "$TIMEZONE" ] && {
+    uci set system.@system[0].timezone="$TIMEZONE"
+    uci commit system
+}
+
+echo '{"success":true,"message":"Settings updated"}'
+

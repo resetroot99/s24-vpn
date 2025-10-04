@@ -1,0 +1,37 @@
+S24 VPN ROUTER - DEPLOYMENT INSTRUCTIONS
+═══════════════════════════════════════════
+
+PREREQUISITES:
+• GL.iNet Opal router (GL-SFT1200)
+• Connected via Ethernet or WiFi
+• SSH enabled on router
+• Root password set
+
+DEPLOYMENT:
+1. Connect to router:
+   ssh root@192.168.8.1
+   Password: [your_password]
+
+2. Upload package:
+   scp s24-production-package.tar.gz root@192.168.8.1:/tmp/
+
+3. Install:
+   ssh root@192.168.8.1
+   cd /tmp
+   tar xzf s24-production-package.tar.gz
+   cd backend
+   sh install-backend.sh
+   
+   mkdir -p /www/s24
+   cp ../dashboard/s24-production-final.html /www/s24/index.html
+
+4. Access dashboard:
+   http://192.168.8.1/s24/
+
+VERIFICATION:
+• VPN connects successfully
+• Device list shows connected devices
+• WiFi configuration works
+• Password change works
+• All sections accessible
+

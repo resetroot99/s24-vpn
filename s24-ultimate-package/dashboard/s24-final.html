@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S24 VPN Router</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #0a0a0a;
+            color: #e0e0e0;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .container { display: flex; height: 100vh; }
+        
+        /* Sidebar */
+        .sidebar {
+            width: 240px;
+            background: #1a1a1a;
+            border-right: 1px solid rgba(255, 140, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+        
+        .logo {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 140, 0, 0.1);
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .logo img {
+            max-width: 180px;
+            height: auto;
+            filter: brightness(1.2);
+        }
+        
+        .nav-menu { flex: 1; padding: 20px 0; }
+        
+        .nav-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            border-left: 3px solid transparent;
+            transition: all 0.2s;
+            font-size: 13px;
+            font-weight: 500;
+            color: #888;
+        }
+        
+        .nav-item:hover {
+            background: rgba(255, 140, 0, 0.1);
+            border-left-color: #ff8c00;
+            color: #e0e0e0;
+        }
+        
+        .nav-item.active {
+            background: rgba(255, 140, 0, 0.15);
+            border-left-color: #ff8c00;
+            color: #ff8c00;
+        }
+        
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        /* Header */
+        .header {
+            background: #1a1a1a;
+            border-bottom: 1px solid rgba(255, 140, 0, 0.1);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #e0e0e0;
+        }
+        
+        .security-badge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 20px;
+            background: #00aa00;
+            color: #000;
+            font-weight: 700;
+            font-size: 12px;
+            border-radius: 20px;
+            letter-spacing: 1px;
+        }
+        
+        /* Content Area */
+        .content-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 40px;
+        }
+        
+        /* VPN Hero Section */
+        .vpn-hero {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+            border: 2px solid rgba(255, 140, 0, 0.3);
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .vpn-status {
+            font-size: 14px;
+            color: #888;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .vpn-connect-btn {
+            width: 100%;
+            max-width: 400px;
+            padding: 25px 50px;
+            font-size: 20px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 0 auto;
+            display: block;
+            text-transform: uppercase;
+        }
+        
+        .vpn-connect-btn.disconnected {
+            background: linear-gradient(135deg, #ff8c00 0%, #ffa500 100%);
+            color: #000;
+            box-shadow: 0 8px 30px rgba(255, 140, 0, 0.4);
+        }
+        
+        .vpn-connect-btn.disconnected:hover {
+            background: linear-gradient(135deg, #ffa500 0%, #ffb700 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(255, 140, 0, 0.6);
+        }
+        
+        .vpn-connect-btn.connected {
+            background: linear-gradient(135deg, #00aa00 0%, #00ff00 100%);
+            color: #000;
+            box-shadow: 0 8px 30px rgba(0, 255, 0, 0.4);
+        }
+        
+        .vpn-connect-btn.connected:hover {
+            background: linear-gradient(135deg, #00ff00 0%, #33ff33 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(0, 255, 0, 0.6);
+        }
+        
+        .vpn-info {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .vpn-info.connected {
+            color: #00ff00;
+            font-weight: 600;
+        }
+        
+        /* Cards */
+        .card {
+            background: #1a1a1a;
+            border: 1px solid rgba(255, 140, 0, 0.2);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+        
+        .card-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #ff8c00;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        /* Server List */
+        .server-list {
+            display: grid;
+            gap: 12px;
+        }
+        
+        .server-item {
+            background: rgba(255, 140, 0, 0.05);
+            border: 1px solid rgba(255, 140, 0, 0.2);
+            border-radius: 10px;
+            padding: 18px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .server-item:hover {
+            background: rgba(255, 140, 0, 0.1);
+            border-color: rgba(255, 140, 0, 0.4);
+        }
+        
+        .server-item.active {
+            background: rgba(0, 255, 0, 0.1);
+            border-color: rgba(0, 255, 0, 0.4);
+        }
+        
+        .server-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .server-flag {
+            font-size: 18px;
+            font-weight: 700;
+            width: 40px;
+            text-align: center;
+            color: #ff8c00;
+        }
+        
+        .server-details {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .server-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #e0e0e0;
+        }
+        
+        .server-location {
+            font-size: 11px;
+            color: #666;
+        }
+        
+        .server-ping {
+            font-size: 12px;
+            font-weight: 600;
+            color: #00ff00;
+        }
+        
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: #888;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            background: #0a0a0a;
+            border: 1px solid rgba(255, 140, 0, 0.2);
+            border-radius: 8px;
+            color: #e0e0e0;
+            font-size: 14px;
+            font-family: inherit;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #ff8c00;
+        }
+        
+        .form-input:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        /* Buttons */
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .btn-primary {
+            background: #ff8c00;
+            color: #000;
+        }
+        
+        .btn-primary:hover {
+            background: #ffa500;
+        }
+        
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 140, 0, 0.2);
+            color: #ff8c00;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 140, 0, 0.3);
+        }
+        
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-box {
+            background: rgba(255, 140, 0, 0.05);
+            border: 1px solid rgba(255, 140, 0, 0.2);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #e0e0e0;
+            margin-bottom: 8px;
+        }
+        
+        .stat-label {
+            font-size: 11px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        /* Alert */
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 13px;
+        }
+        
+        .alert-success {
+            background: rgba(0, 255, 0, 0.1);
+            border: 1px solid rgba(0, 255, 0, 0.3);
+            color: #00ff00;
+        }
+        
+        .alert-error {
+            background: rgba(255, 0, 0, 0.1);
+            border: 1px solid rgba(255, 0, 0, 0.3);
+            color: #ff0000;
+        }
+        
+        /* Hidden */
+        .hidden { display: none; }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1a1a1a; }
+        ::-webkit-scrollbar-thumb { 
+            background: rgba(255, 140, 0, 0.3);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover { 
+            background: rgba(255, 140, 0, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <img src="../../image copy.png" alt="S24 Logo">
+            </div>
+            <div class="nav-menu">
+                <div class="nav-item active" onclick="showSection('vpn')">VPN</div>
+                <div class="nav-item" onclick="showSection('devices')">Devices</div>
+                <div class="nav-item" onclick="showSection('wifi')">WiFi</div>
+                <div class="nav-item" onclick="showSection('security')">Security</div>
+                <div class="nav-item" onclick="showSection('settings')">Settings</div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <div class="header-title">
+                    <img src="../../image copy.png" alt="S24" style="height: 24px; vertical-align: middle; margin-right: 10px; filter: brightness(1.2);">
+                    VPN Router
+                </div>
+                <div class="security-badge" id="security-badge">
+                    <span>SECURE</span>
+                </div>
+            </div>
+            
+            <div class="content-area">
+                <!-- VPN Section (Primary) -->
+                <div id="section-vpn">
+                    <!-- VPN Hero Connect -->
+                    <div class="vpn-hero">
+                        <div class="vpn-status" id="vpn-status-label">VPN Status: Disconnected</div>
+                        <button class="vpn-connect-btn disconnected" id="vpn-main-btn" onclick="toggleVPNMain()">
+                            CONNECT VPN
+                        </button>
+                        <div class="vpn-info" id="vpn-info">Click to connect and secure your internet</div>
+                    </div>
+                    
+                    <!-- Quick Stats -->
+                    <div class="stats-grid">
+                        <div class="stat-box">
+                            <div class="stat-value">3</div>
+                            <div class="stat-label">Devices</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value">2.4 GB</div>
+                            <div class="stat-label">Data Today</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value">1,247</div>
+                            <div class="stat-label">Blocked</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Server Selection -->
+                    <div class="card">
+                        <div class="card-title">Select Server Location</div>
+                        <div class="server-list">
+                            <div class="server-item" onclick="selectServer('nl1', this)">
+                                <div class="server-info">
+                                    <div class="server-flag">NL</div>
+                                    <div class="server-details">
+                                        <div class="server-name">Netherlands</div>
+                                        <div class="server-location">Amsterdam</div>
+                                    </div>
+                                </div>
+                                <div class="server-ping">12ms</div>
+                            </div>
+                            
+                            <div class="server-item" onclick="selectServer('ca3', this)">
+                                <div class="server-info">
+                                    <div class="server-flag">CA</div>
+                                    <div class="server-details">
+                                        <div class="server-name">Canada</div>
+                                        <div class="server-location">Toronto</div>
+                                    </div>
+                                </div>
+                                <div class="server-ping">45ms</div>
+                            </div>
+                            
+                            <div class="server-item" onclick="selectServer('us1', this)">
+                                <div class="server-info">
+                                    <div class="server-flag">US</div>
+                                    <div class="server-details">
+                                        <div class="server-name">USA</div>
+                                        <div class="server-location">New York</div>
+                                    </div>
+                                </div>
+                                <div class="server-ping">38ms</div>
+                            </div>
+                            
+                            <div class="server-item" onclick="selectServer('th1', this)">
+                                <div class="server-info">
+                                    <div class="server-flag">TH</div>
+                                    <div class="server-details">
+                                        <div class="server-name">Thailand</div>
+                                        <div class="server-location">Bangkok</div>
+                                    </div>
+                                </div>
+                                <div class="server-ping">85ms</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Settings Section -->
+                <div id="section-settings" class="hidden">
+                    <div class="card">
+                        <div class="card-title">Change Password</div>
+                        <div id="password-alert" class="hidden"></div>
+                        <form onsubmit="changePassword(event)">
+                            <div class="form-group">
+                                <label class="form-label">Current Password</label>
+                                <input type="password" class="form-input" id="current-password" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">New Password</label>
+                                <input type="password" class="form-input" id="new-password" required minlength="8">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Confirm New Password</label>
+                                <input type="password" class="form-input" id="confirm-password" required minlength="8">
+                            </div>
+                            <button type="submit" class="btn btn-primary">Update Password</button>
+                        </form>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">Router Settings</div>
+                        <div class="form-group">
+                            <label class="form-label">Router Name</label>
+                            <input type="text" class="form-input" id="router-name" value="S24-Router" onchange="saveRouterName()">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Time Zone</label>
+                            <select class="form-input" id="timezone" onchange="saveTimezone()">
+                                <option value="UTC">UTC</option>
+                                <option value="EST">Eastern Time (US)</option>
+                                <option value="PST">Pacific Time (US)</option>
+                                <option value="GMT">GMT (UK)</option>
+                                <option value="CET">Central European Time</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title">System</div>
+                        <button class="btn btn-secondary" onclick="rebootRouter()" style="margin-right: 10px;">Reboot Router</button>
+                        <button class="btn btn-secondary" onclick="factoryReset()">Factory Reset</button>
+                    </div>
+                </div>
+                
+                <!-- Other Sections -->
+                <div id="section-devices" class="hidden">
+                    <div class="card">
+                        <div class="card-title">Connected Devices</div>
+                        <p style="color: #666;">3 devices currently connected</p>
+                    </div>
+                </div>
+                
+                <div id="section-wifi" class="hidden">
+                    <div class="card">
+                        <div class="card-title">WiFi Settings</div>
+                        <p style="color: #666;">Configure your wireless network</p>
+                    </div>
+                </div>
+                
+                <div id="section-security" class="hidden">
+                    <div class="card">
+                        <div class="card-title">Security Settings</div>
+                        <p style="color: #666;">Firewall, kill switch, and privacy settings</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // State
+        let vpnConnected = false;
+        let selectedServer = null;
+        
+        // Section navigation
+        function showSection(section) {
+            document.querySelectorAll('.content-area > div[id^="section-"]').forEach(el => {
+                el.classList.add('hidden');
+            });
+            document.getElementById('section-' + section).classList.remove('hidden');
+            
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+        }
+        
+        // Main VPN Toggle
+        function toggleVPNMain() {
+            const btn = document.getElementById('vpn-main-btn');
+            const statusLabel = document.getElementById('vpn-status-label');
+            const info = document.getElementById('vpn-info');
+            const badge = document.getElementById('security-badge');
+            
+            vpnConnected = !vpnConnected;
+            
+            if (vpnConnected) {
+                btn.classList.remove('disconnected');
+                btn.classList.add('connected');
+                btn.textContent = 'DISCONNECT VPN';
+                statusLabel.textContent = 'VPN Status: Connected';
+                badge.textContent = 'PROTECTED';
+                badge.style.background = '#00aa00';
+                
+                if (selectedServer) {
+                    info.textContent = 'Connected to ' + selectedServer.toUpperCase() + ' server';
+                } else {
+                    info.textContent = 'Your internet traffic is encrypted and secure';
+                }
+                info.classList.add('connected');
+            } else {
+                btn.classList.remove('connected');
+                btn.classList.add('disconnected');
+                btn.textContent = 'CONNECT VPN';
+                statusLabel.textContent = 'VPN Status: Disconnected';
+                badge.textContent = 'SECURE';
+                badge.style.background = '#00aa00';
+                info.textContent = 'Click to connect and secure your internet';
+                info.classList.remove('connected');
+            }
+        }
+        
+        // Server selection
+        function selectServer(server, element) {
+            document.querySelectorAll('.server-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            element.classList.add('active');
+            selectedServer = server;
+            
+            // Auto-connect if not connected
+            if (!vpnConnected) {
+                toggleVPNMain();
+            } else {
+                document.getElementById('vpn-info').textContent = 'Connected to ' + server.toUpperCase() + ' server';
+            }
+        }
+        
+        // Password change
+        function changePassword(event) {
+            event.preventDefault();
+            
+            const current = document.getElementById('current-password').value;
+            const newPass = document.getElementById('new-password').value;
+            const confirm = document.getElementById('confirm-password').value;
+            const alert = document.getElementById('password-alert');
+            
+            // Validate
+            if (newPass !== confirm) {
+                alert.className = 'alert alert-error';
+                alert.textContent = 'New passwords do not match';
+                alert.classList.remove('hidden');
+                return;
+            }
+            
+            if (newPass.length < 8) {
+                alert.className = 'alert alert-error';
+                alert.textContent = 'Password must be at least 8 characters';
+                alert.classList.remove('hidden');
+                return;
+            }
+            
+            // Simulate password change (in real app, would call API)
+            setTimeout(() => {
+                alert.className = 'alert alert-success';
+                alert.textContent = 'Password successfully updated!';
+                alert.classList.remove('hidden');
+                
+                // Clear form
+                document.getElementById('current-password').value = '';
+                document.getElementById('new-password').value = '';
+                document.getElementById('confirm-password').value = '';
+                
+                // Hide alert after 3 seconds
+                setTimeout(() => {
+                    alert.classList.add('hidden');
+                }, 3000);
+            }, 500);
+        }
+        
+        // Router name save
+        function saveRouterName() {
+            const name = document.getElementById('router-name').value;
+            console.log('Saving router name:', name);
+            // In real app, would call API to save
+        }
+        
+        // Timezone save
+        function saveTimezone() {
+            const tz = document.getElementById('timezone').value;
+            console.log('Saving timezone:', tz);
+            // In real app, would call API to save
+        }
+        
+        // Reboot
+        function rebootRouter() {
+            if (confirm('Reboot router? This will disconnect all devices temporarily.')) {
+                alert('Router is rebooting... This will take about 60 seconds.');
+                // In real app, would call API to reboot
+            }
+        }
+        
+        // Factory reset
+        function factoryReset() {
+            if (confirm('WARNING: Factory reset will erase all settings. Are you sure?')) {
+                if (confirm('This cannot be undone. Continue?')) {
+                    alert('Performing factory reset...');
+                    // In real app, would call API to reset
+                }
+            }
+        }
+    </script>
+</body>
+</html>
+
